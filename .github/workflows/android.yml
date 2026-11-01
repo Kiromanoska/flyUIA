@@ -4,7 +4,7 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,9 +19,15 @@ jobs:
           gradle-version: '8.9'
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
-      - uses: actions/upload-artifact@v4
+      - name: Prepare APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk flyUIA.apk
+      - uses: softprops/action-gh-release@v2
         with:
-          name: flyUIA-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 30
+          tag_name: latest
+          name: Latest flyUIA APK
+          body: |
+            Automatically updated APK from the latest successful build on main.
+            Download flyUIA.apk and install it on your Android device.
+          files: flyUIA.apk
+          overwrite_files: true
+          make_latest: true
