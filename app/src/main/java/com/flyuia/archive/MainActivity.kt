@@ -102,6 +102,7 @@ fun FlyUIAApp() {
     var first by remember { mutableStateOf(prefs.getString("first", "") ?: "") }
     var last by remember { mutableStateOf(prefs.getString("last", "") ?: "") }
     var appLanguage by remember { mutableStateOf(prefs.getString("app_language", recommendedLanguageCodes().firstOrNull() ?: "en") ?: "en") }
+    activeLanguageCode = appLanguage
     var savedFlight by remember { mutableStateOf(prefs.getString("saved_flight", "") ?: "") }
     var savedFare by remember { mutableIntStateOf(prefs.getInt("saved_fare", 0)) }
     var savedPoints by remember { mutableIntStateOf(prefs.getInt("saved_points", 0)) }
@@ -168,7 +169,7 @@ fun FlyUIAApp() {
                             prefs.edit().remove("saved_flight").putInt("saved_fare", 0).putInt("saved_points", 0).putBoolean("trip_completed", false).apply()
                         })
                     "Статус" -> FlightStatus()
-                    else -> ProfileScreen(first, last, appLanguage, { appLanguage = it; prefs.edit().putString("app_language", it).apply() }, { first = it; prefs.edit().putString("first", it).apply() }, { last = it; prefs.edit().putString("last", it).apply() }, { page = "Panorama Club" }, { page = "О flyUIA" })
+                    else -> ProfileScreen(first, last, appLanguage, { activeLanguageCode = it; appLanguage = it; prefs.edit().putString("app_language", it).apply() }, { first = it; prefs.edit().putString("first", it).apply() }, { last = it; prefs.edit().putString("last", it).apply() }, { page = "Panorama Club" }, { page = "О flyUIA" })
                 }
             }
         }
