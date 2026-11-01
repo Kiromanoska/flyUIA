@@ -25,7 +25,7 @@ private val Blue = Color(0xFF087CC1)
 private val Sky = Color(0xFFEAF5FC)
 private val Gold = Color(0xFFFFD329)
 private val Muted = Color(0xFF71869A)
-private val Ink = Color(0xFF17324D)
+private val TextInk = Color(0xFF17324D)
 
 class MainActivity : ComponentActivity() {
  override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); setContent { App() } }
@@ -149,7 +149,7 @@ fun App() {
    Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
     Text("flyUIA     DEMO PASS",color=Navy,fontSize=22.sp,fontWeight=FontWeight.Black); HorizontalDivider()
     Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) { Text("KBP\nKYIV",color=Navy,fontSize=24.sp,fontWeight=FontWeight.Black); Icon(Icons.Default.Flight,null,tint=Gold); Text("ODS\nODESA",color=Navy,fontSize=24.sp,fontWeight=FontWeight.Black) }
-    HorizontalDivider(); Text("FLIGHT     PS 057       DATE     15 NOV 2026",color=Ink); Text("PASSENGER: ${first.ifBlank { "DEMO" }} ${last.ifBlank { "PASSENGER" }}",color=Ink)
+    HorizontalDivider(); Text("FLIGHT     PS 057       DATE     15 NOV 2026",color=TextInk); Text("PASSENGER: ${first.ifBlank { "DEMO" }} ${last.ifBlank { "PASSENGER" }}",color=TextInk)
     Box(Modifier.fillMaxWidth().height(85.dp).background(Sky,RoundedCornerShape(8.dp)),contentAlignment=Alignment.Center) { Text("▥ ▦ ▥ ▦ ▥ ▦ ▥\nSAMPLE BARCODE",color=Navy) }
     Text("NOT A VALID TRAVEL DOCUMENT",color=Color(0xFFB45309),fontWeight=FontWeight.Bold,fontSize=12.sp)
    }
@@ -160,7 +160,7 @@ fun App() {
  var flight by remember { mutableStateOf("PS 057") }
  Page("Flight status","Illustrative information — not live") {
   OutlinedTextField(flight,{flight=it},Modifier.fillMaxWidth(),label={Text("Flight number")})
-  Card(colors=CardDefaults.cardColors(containerColor=Color.White)) { Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(9.dp)) { Text(flight.uppercase(),color=Blue,fontWeight=FontWeight.Bold); Text("Kyiv (KBP)  →  Odesa (ODS)",color=Navy,fontWeight=FontWeight.Bold,fontSize=18.sp); Text("Scheduled · 10:35 → 11:40",color=Ink); AssistChip(onClick={},label={Text("SAMPLE DATA")}) } }
+  Card(colors=CardDefaults.cardColors(containerColor=Color.White)) { Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(9.dp)) { Text(flight.uppercase(),color=Blue,fontWeight=FontWeight.Bold); Text("Kyiv (KBP)  →  Odesa (ODS)",color=Navy,fontWeight=FontWeight.Bold,fontSize=18.sp); Text("Scheduled · 10:35 → 11:40",color=TextInk); AssistChip(onClick={},label={Text("SAMPLE DATA")}) } }
  }
 }
 @Composable fun Profile(first:String,last:String,sf:(String)->Unit,sl:(String)->Unit,club:()->Unit,about:()->Unit) {
