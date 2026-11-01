@@ -209,8 +209,14 @@ private fun AirportPicker(label: String, selected: String, onSelect: (String) ->
             singleLine = true,
             trailingIcon = { IconButton(onClick = { expanded = !expanded }) { Icon(Icons.Default.ExpandMore, null) } }
         )
+        val airportMatches = remember(query) {
+            allAirports.asSequence()
+                .filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) }
+                .take(12)
+                .toList()
+        }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.heightIn(max = 300.dp).background(Color.White)) {
-            allAirports.filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) }.take(12).forEach { item ->
+            airportMatches.forEach { item ->
                 DropdownMenuItem(text = { Text(item.label) }, onClick = { onSelect(item.code); query = item.label; expanded = false })
             }
         }
@@ -412,7 +418,7 @@ private fun ProfileScreen(
         OutlinedTextField(first, setFirst, Modifier.fillMaxWidth(), label = { Text("Имя") })
         OutlinedTextField(last, setLast, Modifier.fillMaxWidth(), label = { Text("Фамилия") })
         OutlinedButton(onClick = { showLanguages = true }, modifier = Modifier.fillMaxWidth()) {
-            Text("Язык: ${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
+            Text("${uiText("Язык")}: ${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
         }
         Text("Рекомендации учитывают регион устройства и системный язык.", color = Muted, fontSize = 11.sp)
         Button(onClick = club, Modifier.fillMaxWidth()) { Icon(Icons.Default.CardMembership, null); Spacer(Modifier.width(8.dp)); Text("Panorama Club") }
@@ -432,7 +438,7 @@ private fun ProfileScreen(
                         singleLine = true
                     )
                     if (languageQuery.isBlank()) {
-                        Text("Рекомендуемые", color = Blue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
+                        Text(uiText("Рекомендуемые"), color = Blue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
                     }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                         languageResults.forEach { option ->
