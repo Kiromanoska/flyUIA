@@ -58,7 +58,7 @@ private val routes = listOf(
     FlightRoute("LIS","YYZ","PS 1049","11:20","7h 50m",345), FlightRoute("NRT","BKK","PS 1053","09:40","6h 40m",270)
 )
 
-private fun airport(code: String) = airportByCode[code]?.label ?: code
+private fun airport(code: String) = allAirportByCode[code]?.label ?: code
 private fun tier(points: Int) = when {
     points >= 12000 -> "Platinum"
     points >= 5000 -> "Gold"
@@ -81,6 +81,7 @@ private fun nextTier(points: Int) = when {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadGlobalAirportCatalog(this)
         setContent { FlyUIAApp() }
     }
 }
@@ -196,7 +197,7 @@ private fun Screen(title: String, subtitle: String? = null, content: @Composable
 @Composable
 private fun AirportPicker(label: String, selected: String, onSelect: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var query by remember(selected) { mutableStateOf(airportByCode[selected]?.label ?: selected) }
+    var query by remember(selected) { mutableStateOf(allAirportByCode[selected]?.label ?: selected) }
     Column {
         OutlinedTextField(
             value = query,
@@ -207,7 +208,7 @@ private fun AirportPicker(label: String, selected: String, onSelect: (String) ->
             trailingIcon = { IconButton(onClick = { expanded = !expanded }) { Icon(Icons.Default.ExpandMore, null) } }
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.heightIn(max = 300.dp).background(Color.White)) {
-            airports.filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) }.take(12).forEach { item ->
+            allAirports.filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) }.take(12).forEach { item ->
                 DropdownMenuItem(text = { Text(item.label) }, onClick = { onSelect(item.code); query = item.label; expanded = false })
             }
         }
@@ -248,7 +249,7 @@ private fun HomeScreen(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 QuickTile("Расписание", Icons.Default.Schedule, schedule, Modifier.weight(1f))
-                QuickTile("${airports.size} аэропортов мира", Icons.Default.Public, schedule, Modifier.weight(1f))
+                QuickTile("${allAirports.size} аэропортов мира", Icons.Default.Public, schedule, Modifier.weight(1f))
             }
             Text("Популярные направления", color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             listOf("KBP" to "FCO", "WAW" to "BCN", "FRA" to "JFK", "IST" to "DXB").forEach { (a, b) ->
@@ -284,7 +285,7 @@ private fun SearchResults(from: String, to: String, passengers: Int, points: Int
     Screen("Рейсы: ${airport(from)} → ${airport(to)}", "$passengers пассажир(а) · стоимость указана за одного") {
         if (results.isEmpty()) {
             Text("На выбранную дату вариантов пока нет. Попробуйте другой город или направление.", color = Muted)
-            Text("Доступно аэропортов: ${airports.size} · направлений: ${routes.size}", color = Blue, fontWeight = FontWeight.SemiBold)
+            Text("Доступно аэропортов: ${allAirports.size} · направлений: ${routes.size}", color = Blue, fontWeight = FontWeight.SemiBold)
         } else {
             Text("Найдено вариантов: ${results.size}", color = Blue, fontWeight = FontWeight.SemiBold)
             results.forEach { item ->
@@ -432,8 +433,8 @@ private fun PanoramaClub(points: Int, lifetimeEarned: Int, addPoints: (Int) -> U
 
 @Composable
 private fun FlightSchedule() {
-    Screen("Маршрутная сеть", "${airports.size} аэропортов · ${routes.size} направлений") {
-        airports.forEach { item ->
+    Screen("Маршрутная сеть", "${allAirports.size} аэропортов · ${routes.size} направлений") {
+        allAirports.forEach { item ->
             Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) { Text(item.city, color = Navy, fontWeight = FontWeight.SemiBold); Text(item.country, color = Muted, fontSize = 11.sp) }
