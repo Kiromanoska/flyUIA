@@ -92,6 +92,7 @@ fun FlyUIAApp() {
     val prefs = remember { context.getSharedPreferences("flyuia", 0) }
     var tab by remember { mutableStateOf("Главная") }
     var page by remember { mutableStateOf("") }
+    var airportPickerTarget by remember { mutableStateOf("from") }
     var from by remember { mutableStateOf("KBP") }
     var to by remember { mutableStateOf("FCO") }
     var travelDate by remember { mutableStateOf("15 Nov 2026") }
@@ -142,6 +143,15 @@ fun FlyUIAApp() {
                             prefs.edit().putInt("club_points", points).putInt("club_earned", earned).apply()
                         }
                         "Расписание" -> FlightSchedule()
+                        "Выбор аэропорта" -> CountryAirportPicker(
+                            title = if (airportPickerTarget == "from") "Вылет из" else "Прилёт в",
+                            selectedCode = if (airportPickerTarget == "from") from else to,
+                            onBack = { page = "" },
+                            onSelect = { code ->
+                                if (airportPickerTarget == "from") from = code else to = code
+                                page = ""
+                            }
+                        )
                         "Посадочный талон" -> BoardingPass(first, last, savedFlight)
                         "О flyUIA" -> About()
                         else -> About()
@@ -152,7 +162,8 @@ fun FlyUIAApp() {
                         { from = it }, { to = it }, { val swap = from; from = to; to = swap },
                         { travelDate = it }, { passengers = (passengers + 1).coerceAtMost(9) },
                         { passengers = (passengers - 1).coerceAtLeast(1) }, { roundTrip = it },
-                        { page = "Результаты поиска" }, { page = "Расписание" }
+                        { page = "Результаты поиска" }, { page = "Расписание" },
+                        { target -> airportPickerTarget = target; page = "Выбор аэропорта" }
                     )
                     "Мои поездки" -> MyTrips(savedFlight, savedFare, savedPoints, tripCompleted,
                         { page = "Посадочный талон" },
@@ -197,29 +208,74 @@ private fun Screen(title: String, subtitle: String? = null, content: @Composable
 }
 
 @Composable
-private fun AirportPicker(label: String, selected: String, onSelect: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    var query by remember(selected) { mutableStateOf(allAirportByCode[selected]?.label ?: selected) }
-    Column {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it; expanded = true },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(uiText(label)) },
-            singleLine = true,
-            trailingIcon = { IconButton(onClick = { expanded = !expanded }) { Icon(Icons.Default.ExpandMore, null) } }
-        )
-        val airportMatches = remember(query) {
-            allAirports.asSequence()
-                .filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) || it.countryName.contains(query, true) }
-                .take(12)
-                .toList()
+private fun AirportSelectionField(label: String, selected: String, open: () -> Unit) {
+    val item = remember(selected) { allAirportByCode[selected] }
+    OutlinedCard(modifier = Modifier.fillMaxWidth().clickable { open() }, colors = CardDefaults.outlinedCardColors(containerColor = Color.White), shape = RoundedCornerShape(8.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(uiText(label), color = Muted, fontSize = 11.sp)
+                Text(item?.city ?: selected, color = TextInk, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                if (item != null) Text("${item.countryName} · ${item.code}", color = Muted, fontSize = 12.sp)
+            }
+            Icon(Icons.Default.ExpandMore, contentDescription = "Выбрать аэропорт", tint = Navy)
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.heightIn(max = 300.dp).background(Color.White)) {
-            airportMatches.forEach { item ->
-                DropdownMenuItem(text = { Text(item.label) }, onClick = { onSelect(item.code); query = item.label; expanded = false })
+    }
+}
+
+private data class CountryAirport(val country: String, val city: String, val code: String, val airportName: String)
+
+private val countryAirportDirectory = listOf(
+    CountryAirport("Украина", "Борисполь / Киев", "KBP", "Международный аэропорт Борисполь"),
+    CountryAirport("Украина", "Винница", "VIN", "Международный аэропорт Винница (Гавришевка)"),
+    CountryAirport("Украина", "Днепр", "DNK", "Международный аэропорт Днепр"),
+    CountryAirport("Украина", "Донецк", "DOK", "Международный аэропорт Донецк"),
+    CountryAirport("Украина", "Запорожье", "OZH", "Международный аэропорт Запорожье"),
+    CountryAirport("Украина", "Ивано-Франковск", "IFO", "Международный аэропорт Ивано-Франковск"),
+    CountryAirport("Украина", "Киев (Жуляны)", "IEV", "Международный аэропорт имени Игоря Сикорского"),
+    CountryAirport("Украина", "Кривой Рог", "KWG", "Международный аэропорт Кривой Рог"),
+    CountryAirport("Украина", "Луганск", "VSG", "Международный аэропорт Луганск"),
+    CountryAirport("Украина", "Львов", "LWO", "Международный аэропорт Львов имени Даниила Галицкого"),
+    CountryAirport("Украина", "Мариуполь", "MPW", "Международный аэропорт Мариуполь"),
+    CountryAirport("Украина", "Николаев", "NLV", "Международный аэропорт Николаев"),
+    CountryAirport("Украина", "Одеса", "ODS", "Международный аэропорт Одеса"),
+    CountryAirport("Украина", "Полтава", "PLV", "Международный аэропорт Полтава"),
+    CountryAirport("Украина", "Ровно", "RWN", "Международный аэропорт Ровно"),
+    CountryAirport("Украина", "Севастополь", "UKS", "Международный аэропорт Бельбек"),
+    CountryAirport("Украина", "Симферополь", "SIP", "Международный аэропорт Симферополь"),
+    CountryAirport("Украина", "Сумы", "UMY", "Аэропорт Сумы"),
+    CountryAirport("Украина", "Тернополь", "TNL", "Международный аэропорт Тернополь"),
+    CountryAirport("Украина", "Ужгород", "UDJ", "Международный аэропорт Ужгород"),
+    CountryAirport("Украина", "Харьков", "HRK", "Международный аэропорт Харьков"),
+    CountryAirport("Украина", "Херсон", "KHE", "Международный аэропорт Херсон"),
+    CountryAirport("Украина", "Черкассы", "CKC", "Международный аэропорт Черкассы"),
+    CountryAirport("Украина", "Черновцы", "CWC", "Международный аэропорт Черновцы имени Леонида Каденюка")
+)
+
+@Composable
+private fun CountryAirportPicker(title: String, selectedCode: String, onBack: () -> Unit, onSelect: (String) -> Unit) {
+    var query by remember { mutableStateOf("") }
+    val results = remember(query) { countryAirportDirectory.filter { query.isBlank() || it.city.contains(query, true) || it.code.contains(query, true) || it.airportName.contains(query, true) || it.country.contains(query, true) } }
+    Column(Modifier.fillMaxSize().background(Color.White)) {
+        Row(Modifier.fillMaxWidth().background(Color(0xFFF1F1F1)).padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Close, contentDescription = "Закрыть", modifier = Modifier.clickable { onBack() }, tint = TextInk)
+            Spacer(Modifier.width(22.dp))
+            Text(title, color = TextInk, fontSize = 20.sp)
+        }
+        OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp), placeholder = { Text("Поиск города или аэропорта") }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
+        if (query.isBlank()) Text("УКРАИНА", Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            results.forEach { item ->
+                Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(item.city, color = if (item.code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
+                        Text(item.airportName, color = Muted, fontSize = 11.sp)
+                    }
+                    Text(item.code, color = Color.LightGray, fontSize = 16.sp)
+                }
+                HorizontalDivider(color = Color(0xFFE2E2E2))
             }
         }
+        OutlinedButton(onClick = onBack, Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 14.dp)) { Text("НАЗАД") }
     }
 }
 
@@ -227,7 +283,8 @@ private fun AirportPicker(label: String, selected: String, onSelect: (String) ->
 private fun HomeScreen(
     from: String, to: String, date: String, passengers: Int, round: Boolean,
     setFrom: (String) -> Unit, setTo: (String) -> Unit, swap: () -> Unit, setDate: (String) -> Unit,
-    plus: () -> Unit, minus: () -> Unit, setRound: (Boolean) -> Unit, search: () -> Unit, schedule: () -> Unit
+    plus: () -> Unit, minus: () -> Unit, setRound: (Boolean) -> Unit, search: () -> Unit, schedule: () -> Unit,
+    openAirportPicker: (String) -> Unit
 ) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Header()
@@ -236,9 +293,9 @@ private fun HomeScreen(
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(18.dp)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(uiText("ПОИСК АВИАБИЛЕТОВ"), color = Blue, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    AirportPicker("Откуда", from, setFrom)
+                    AirportSelectionField("Откуда", from, open = { openAirportPicker("from") })
                     Text(uiText("⇅ Поменять направление"), color = Blue, modifier = Modifier.align(Alignment.End).clickable { swap() })
-                    AirportPicker("Куда", to, setTo)
+                    AirportSelectionField("Куда", to, open = { openAirportPicker("to") })
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         FilterChip(selected = !round, onClick = { setRound(false) }, label = { Text(uiText(uiText("В одну сторону"))) })
                         Spacer(Modifier.width(8.dp))
