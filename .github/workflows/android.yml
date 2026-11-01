@@ -21,6 +21,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Checkout global airport database
+        uses: actions/checkout@v4
+        with:
+          repository: davidmegginson/ourairports-data
+          path: airport-source
+      - name: Generate worldwide airport catalogue
+        run: |
+          mkdir -p app/src/main/assets
+          python3 scripts/build_airport_catalog.py airport-source/airports.csv app/src/main/assets/airports.json.gz
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
       - name: Prepare APK
