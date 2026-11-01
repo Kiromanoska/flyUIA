@@ -234,18 +234,18 @@ private fun HomeScreen(
                     Text("⇅ Поменять направление", color = Blue, modifier = Modifier.align(Alignment.End).clickable { swap() })
                     AirportPicker("Куда", to, setTo)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        FilterChip(selected = !round, onClick = { setRound(false) }, label = { Text("В одну сторону") })
+                        FilterChip(selected = !round, onClick = { setRound(false) }, label = { Text(uiText("В одну сторону")) })
                         Spacer(Modifier.width(8.dp))
-                        FilterChip(selected = round, onClick = { setRound(true) }, label = { Text("Туда и обратно") })
+                        FilterChip(selected = round, onClick = { setRound(true) }, label = { Text(uiText("Туда и обратно")) })
                     }
-                    OutlinedTextField(date, setDate, Modifier.fillMaxWidth(), label = { Text("Дата вылета") }, leadingIcon = { Icon(Icons.Default.CalendarMonth, null) }, singleLine = true)
+                    OutlinedTextField(date, setDate, Modifier.fillMaxWidth(), label = { Text(uiText("Дата вылета")) }, leadingIcon = { Icon(Icons.Default.CalendarMonth, null) }, singleLine = true)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) { Text("Пассажиры", fontWeight = FontWeight.SemiBold); Text("$passengers взрослый(ых)", color = Muted, fontSize = 12.sp) }
                         IconButton(onClick = minus) { Icon(Icons.Default.RemoveCircleOutline, null) }
                         IconButton(onClick = plus) { Icon(Icons.Default.AddCircleOutline, null) }
                     }
                     Button(onClick = search, Modifier.fillMaxWidth().height(50.dp), enabled = from != to) {
-                        Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text("Найти рейсы")
+                        Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text(uiText("Найти рейсы"))
                     }
                 }
             }
