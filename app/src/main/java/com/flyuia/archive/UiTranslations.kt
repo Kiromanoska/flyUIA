@@ -4,6 +4,7 @@ package com.flyuia.archive
 internal var activeLanguageCode: String = "ru"
 
 private val englishUi = mapOf(
+    "Язык" to "Language", "баллов на вашем счёте" to "points in your account",
     "Главная" to "Home", "Мои поездки" to "My trips", "Статус" to "Flight status",
     "Профиль" to "Profile", "Назад" to "Back", "Результаты поиска" to "Search results",
     "Подтверждение поездки" to "Trip confirmation", "Расписание" to "Schedule",
@@ -37,6 +38,7 @@ private val englishUi = mapOf(
 )
 
 private val ukrainianUi = mapOf(
+    "Язык" to "Мова", "баллов на вашем счёте" to "балів на вашому рахунку",
     "Главная" to "Головна", "Мои поездки" to "Мої подорожі", "Статус" to "Статус рейсу",
     "Профиль" to "Профіль", "Назад" to "Назад", "Результаты поиска" to "Результати пошуку",
     "Подтверждение поездки" to "Підтвердження подорожі", "Расписание" to "Розклад",
@@ -71,6 +73,7 @@ private val ukrainianUi = mapOf(
 )
 
 private val bulgarianUi = mapOf(
+    "Язык" to "Език", "баллов на вашем счёте" to "точки във вашата сметка",
     "Главная" to "Начало", "Мои поездки" to "Моите пътувания", "Статус" to "Статус на полета",
     "Профиль" to "Профил", "Назад" to "Назад", "Результаты поиска" to "Резултати от търсенето",
     "Подтверждение поездки" to "Потвърждение на пътуването", "Расписание" to "Разписание",
