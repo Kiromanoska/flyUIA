@@ -27,31 +27,12 @@ private val Gold = Color(0xFFFFD329)
 private val Muted = Color(0xFF71869A)
 private val TextInk = Color(0xFF17324D)
 
-private data class Airport(val city: String, val country: String, val code: String) {
-    val label: String get() = "$city, $country ($code)"
-}
 private data class FlightRoute(val from: String, val to: String, val number: String, val time: String, val duration: String, val fare: Int)
 private data class Itinerary(val first: FlightRoute, val second: FlightRoute? = null) {
     val fare: Int get() = first.fare + (second?.fare ?: 0)
     val duration: String get() = if (second == null) first.duration else "${first.duration} + ${second.duration}"
 }
 
-private val airports = listOf(
-    Airport("Kyiv", "Ukraine", "KBP"), Airport("Odesa", "Ukraine", "ODS"), Airport("Lviv", "Ukraine", "LWO"),
-    Airport("Warsaw", "Poland", "WAW"), Airport("Krakow", "Poland", "KRK"), Airport("Prague", "Czechia", "PRG"),
-    Airport("Budapest", "Hungary", "BUD"), Airport("Vienna", "Austria", "VIE"), Airport("Berlin", "Germany", "BER"),
-    Airport("Frankfurt", "Germany", "FRA"), Airport("Munich", "Germany", "MUC"), Airport("Paris", "France", "CDG"),
-    Airport("Nice", "France", "NCE"), Airport("Amsterdam", "Netherlands", "AMS"), Airport("Brussels", "Belgium", "BRU"),
-    Airport("London", "United Kingdom", "LGW"), Airport("Rome", "Italy", "FCO"), Airport("Milan", "Italy", "MXP"),
-    Airport("Venice", "Italy", "VCE"), Airport("Barcelona", "Spain", "BCN"), Airport("Madrid", "Spain", "MAD"),
-    Airport("Lisbon", "Portugal", "LIS"), Airport("Athens", "Greece", "ATH"), Airport("Istanbul", "Türkiye", "IST"),
-    Airport("Antalya", "Türkiye", "AYT"), Airport("Varna", "Bulgaria", "VAR"), Airport("Sofia", "Bulgaria", "SOF"),
-    Airport("Bucharest", "Romania", "OTP"), Airport("Belgrade", "Serbia", "BEG"), Airport("Zagreb", "Croatia", "ZAG"),
-    Airport("Split", "Croatia", "SPU"), Airport("Dubai", "UAE", "DXB"), Airport("Doha", "Qatar", "DOH"),
-    Airport("Tbilisi", "Georgia", "TBS"), Airport("Yerevan", "Armenia", "EVN"), Airport("Baku", "Azerbaijan", "GYD"),
-    Airport("New York", "USA", "JFK"), Airport("Toronto", "Canada", "YYZ"), Airport("Tokyo", "Japan", "NRT"),
-    Airport("Bangkok", "Thailand", "BKK"), Airport("Singapore", "Singapore", "SIN")
-)
 private val airportByCode = airports.associateBy { it.code }
 private val routes = listOf(
     FlightRoute("KBP","WAW","PS 801","08:10","1h 35m",95), FlightRoute("KBP","PRG","PS 807","10:20","2h 05m",125),
