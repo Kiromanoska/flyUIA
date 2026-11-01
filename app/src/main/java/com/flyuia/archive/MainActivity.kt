@@ -301,7 +301,7 @@ private fun SearchResults(from: String, to: String, passengers: Int, points: Int
                         Text(if (item.second == null) "${airport(item.first.from)}  →  ${airport(item.first.to)}" else "${airport(item.first.from)}  →  ${airport(item.first.to)}  →  ${airport(item.second!!.to)}", color = Navy, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         Text("${item.first.number}${item.second?.let { " · ${it.number}" } ?: ""}  ·  ${item.duration}", color = Muted, fontSize = 12.sp)
                         if (discount(points) > 0) Text("С учётом скидки Panorama Club: ${discount(points)}%", color = Color(0xFF16834A), fontSize = 12.sp)
-                        Button(onClick = { choose(item) }, Modifier.fillMaxWidth()) { Text("Выбрать рейс") }
+                        Button(onClick = { choose(item) }, Modifier.fillMaxWidth()) { Text(uiText("Выбрать рейс")) }
                     }
                 }
             }
@@ -319,7 +319,7 @@ private fun BookingSummary(route: String, fare: Int, pointsToEarn: Int, clubDisc
                 Text("Уровневая скидка Panorama Club: $clubDiscount%", color = Muted)
                 Text("Баллы к начислению после поездки: $pointsToEarn", color = Blue, fontWeight = FontWeight.SemiBold)
                 Text("Маршрут сохранён в разделе «Мои поездки».", color = Color(0xFF16834A))
-                Button(onClick = close, Modifier.fillMaxWidth()) { Text("Готово") }
+                Button(onClick = close, Modifier.fillMaxWidth()) { Text(uiText("Готово")) }
             }
         }
     }
@@ -337,9 +337,9 @@ private fun MyTrips(route: String, fare: Int, pendingPoints: Int, completed: Boo
                     Text(route, color = Navy, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text("Стоимость: €$fare", color = TextInk)
                     Text(if (completed) "Поездка завершена · баллы начислены" else "Ожидает завершения поездки · $pendingPoints баллов", color = Muted)
-                    OutlinedButton(onClick = pass, Modifier.fillMaxWidth()) { Text("Посмотреть маршрут") }
-                    if (!completed) Button(onClick = complete, Modifier.fillMaxWidth()) { Text("Завершить поездку и начислить баллы") }
-                    TextButton(onClick = remove) { Text("Удалить маршрут") }
+                    OutlinedButton(onClick = pass, Modifier.fillMaxWidth()) { Text(uiText("Посмотреть маршрут")) }
+                    if (!completed) Button(onClick = complete, Modifier.fillMaxWidth()) { Text(uiText("Завершить поездку и начислить баллы")) }
+                    TextButton(onClick = remove) { Text(uiText("Удалить маршрут")) }
                 }
             }
         }
@@ -365,7 +365,7 @@ private fun BoardingPass(first: String, last: String, route: String) {
 private fun FlightStatus() {
     var query by remember { mutableStateOf("") }
     Screen("Статус рейса", "Поиск по номеру рейса") {
-        OutlinedTextField(query, { query = it.uppercase() }, Modifier.fillMaxWidth(), label = { Text("Номер рейса") }, singleLine = true)
+        OutlinedTextField(query, { query = it.uppercase() }, Modifier.fillMaxWidth(), label = { Text(uiText("Номер рейса")) }, singleLine = true)
         val matches = routes.filter { query.isBlank() || it.number.contains(query, true) }
         matches.take(10).forEach { flight ->
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
@@ -421,14 +421,14 @@ private fun ProfileScreen(
     if (showLanguages) {
         AlertDialog(
             onDismissRequest = { showLanguages = false },
-            title = { Text("Выберите язык") },
+            title = { Text(uiText("Выберите язык")) },
             text = {
                 Column(Modifier.heightIn(max = 430.dp)) {
                     OutlinedTextField(
                         value = languageQuery,
                         onValueChange = { languageQuery = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Поиск языка") },
+                        label = { Text(uiText("Поиск языка")) },
                         singleLine = true
                     )
                     if (languageQuery.isBlank()) {
@@ -455,7 +455,7 @@ private fun ProfileScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showLanguages = false; languageQuery = "" }) { Text("Закрыть") }
+                TextButton(onClick = { showLanguages = false; languageQuery = "" }) { Text(uiText("Закрыть")) }
             }
         )
     }
@@ -516,7 +516,7 @@ private fun FlightSchedule() {
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Город, страна, название или код") },
+            label = { Text(uiText("Город, страна, название или код")) },
             singleLine = true
         )
         Text("Показано ${matches.size} из ${allAirports.size}", color = Muted, fontSize = 12.sp)
