@@ -101,6 +101,7 @@ fun FlyUIAApp() {
     var earned by remember { mutableIntStateOf(prefs.getInt("club_earned", 0)) }
     var first by remember { mutableStateOf(prefs.getString("first", "") ?: "") }
     var last by remember { mutableStateOf(prefs.getString("last", "") ?: "") }
+    var appLanguage by remember { mutableStateOf(prefs.getString("app_language", recommendedLanguageCodes().firstOrNull() ?: "en") ?: "en") }
     var savedFlight by remember { mutableStateOf(prefs.getString("saved_flight", "") ?: "") }
     var savedFare by remember { mutableIntStateOf(prefs.getInt("saved_fare", 0)) }
     var savedPoints by remember { mutableIntStateOf(prefs.getInt("saved_points", 0)) }
@@ -167,7 +168,7 @@ fun FlyUIAApp() {
                             prefs.edit().remove("saved_flight").putInt("saved_fare", 0).putInt("saved_points", 0).putBoolean("trip_completed", false).apply()
                         })
                     "Статус" -> FlightStatus()
-                    else -> ProfileScreen(first, last, { first = it; prefs.edit().putString("first", it).apply() }, { last = it; prefs.edit().putString("last", it).apply() }, { page = "Panorama Club" }, { page = "О flyUIA" })
+                    else -> ProfileScreen(first, last, appLanguage, { appLanguage = it; prefs.edit().putString("app_language", it).apply() }, { first = it; prefs.edit().putString("first", it).apply() }, { last = it; prefs.edit().putString("last", it).apply() }, { page = "Panorama Club" }, { page = "О flyUIA" })
                 }
             }
         }
@@ -382,12 +383,80 @@ private fun FlightStatus() {
 }
 
 @Composable
-private fun ProfileScreen(first: String, last: String, setFirst: (String) -> Unit, setLast: (String) -> Unit, club: () -> Unit, about: () -> Unit) {
+private fun ProfileScreen(
+    first: String,
+    last: String,
+    languageCode: String,
+    setLanguage: (String) -> Unit,
+    setFirst: (String) -> Unit,
+    setLast: (String) -> Unit,
+    club: () -> Unit,
+    about: () -> Unit
+) {
+    var showLanguages by remember { mutableStateOf(false) }
+    var languageQuery by remember { mutableStateOf("") }
+    val recommended = remember { recommendedLanguageCodes() }
+    val selectedLanguage = allLanguages.firstOrNull { it.code == languageCode }
+    val languageResults = remember(languageQuery, recommended) {
+        val filtered = allLanguages.filter {
+            it.englishName.contains(languageQuery, true) ||
+                it.nativeName.contains(languageQuery, true) || it.code.contains(languageQuery, true)
+        }
+        if (languageQuery.isBlank()) {
+            recommended.mapNotNull { code -> filtered.firstOrNull { it.code == code } } +
+                filtered.filterNot { it.code in recommended }
+        } else filtered
+    }
     Screen("Профиль", "Данные пассажира") {
         OutlinedTextField(first, setFirst, Modifier.fillMaxWidth(), label = { Text("Имя") })
         OutlinedTextField(last, setLast, Modifier.fillMaxWidth(), label = { Text("Фамилия") })
+        OutlinedButton(onClick = { showLanguages = true }, modifier = Modifier.fillMaxWidth()) {
+            Text("Язык: ${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
+        }
+        Text("Рекомендации учитывают регион устройства и системный язык.", color = Muted, fontSize = 11.sp)
         Button(onClick = club, Modifier.fillMaxWidth()) { Icon(Icons.Default.CardMembership, null); Spacer(Modifier.width(8.dp)); Text("Panorama Club") }
         OutlinedButton(onClick = about, Modifier.fillMaxWidth()) { Text("О flyUIA") }
+    }
+    if (showLanguages) {
+        AlertDialog(
+            onDismissRequest = { showLanguages = false },
+            title = { Text("Выберите язык") },
+            text = {
+                Column(Modifier.heightIn(max = 430.dp)) {
+                    OutlinedTextField(
+                        value = languageQuery,
+                        onValueChange = { languageQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Поиск языка") },
+                        singleLine = true
+                    )
+                    if (languageQuery.isBlank()) {
+                        Text("Рекомендуемые", color = Blue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
+                    }
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        languageResults.forEach { option ->
+                            TextButton(
+                                onClick = {
+                                    setLanguage(option.code)
+                                    showLanguages = false
+                                    languageQuery = ""
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    (if (option.code in recommended) "★ " else "") +
+                                        "${option.nativeName} · ${option.englishName}  (${option.code})",
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguages = false; languageQuery = "" }) { Text("Закрыть") }
+            }
+        )
     }
 }
 
