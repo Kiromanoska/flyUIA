@@ -249,7 +249,7 @@ private fun HomeScreen(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 QuickTile("Расписание", Icons.Default.Schedule, schedule, Modifier.weight(1f))
-                QuickTile("40+ направлений", Icons.Default.Public, schedule, Modifier.weight(1f))
+                QuickTile("${airports.size} аэропортов мира", Icons.Default.Public, schedule, Modifier.weight(1f))
             }
             Text("Популярные направления", color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             listOf("KBP" to "FCO", "WAW" to "BCN", "FRA" to "JFK", "IST" to "DXB").forEach { (a, b) ->
