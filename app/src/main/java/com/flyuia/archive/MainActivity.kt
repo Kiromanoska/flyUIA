@@ -180,8 +180,8 @@ fun FlyUIAApp() {
 private fun Header() {
     Row(Modifier.fillMaxWidth().background(Navy).padding(horizontal = 20.dp, vertical = 18.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text("flyUIA", color = Color.White, fontSize = 29.sp, fontWeight = FontWeight.Black)
-            Text("UKRAINE INTERNATIONAL AIRLINES", color = Color(0xFFB9D8EF), fontSize = 8.sp, letterSpacing = 1.4.sp)
+            Text(uiText("flyUIA"), color = Color.White, fontSize = 29.sp, fontWeight = FontWeight.Black)
+            Text(uiText("UKRAINE INTERNATIONAL AIRLINES"), color = Color(0xFFB9D8EF), fontSize = 8.sp, letterSpacing = 1.4.sp)
         }
         Box(Modifier.size(38.dp).background(Gold, RoundedCornerShape(50)), contentAlignment = Alignment.Center) { Icon(Icons.Default.Flight, null, tint = Navy) }
     }
@@ -211,7 +211,7 @@ private fun AirportPicker(label: String, selected: String, onSelect: (String) ->
         )
         val airportMatches = remember(query) {
             allAirports.asSequence()
-                .filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) }
+                .filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) || it.countryName.contains(query, true) }
                 .take(12)
                 .toList()
         }
@@ -232,26 +232,26 @@ private fun HomeScreen(
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Header()
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("Открой мир вместе с flyUIA", color = Navy, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(uiText("Открой мир вместе с flyUIA"), color = Navy, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(18.dp)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("ПОИСК АВИАБИЛЕТОВ", color = Blue, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Text(uiText("ПОИСК АВИАБИЛЕТОВ"), color = Blue, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     AirportPicker("Откуда", from, setFrom)
-                    Text("⇅ Поменять направление", color = Blue, modifier = Modifier.align(Alignment.End).clickable { swap() })
+                    Text(uiText("⇅ Поменять направление"), color = Blue, modifier = Modifier.align(Alignment.End).clickable { swap() })
                     AirportPicker("Куда", to, setTo)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        FilterChip(selected = !round, onClick = { setRound(false) }, label = { Text(uiText("В одну сторону")) })
+                        FilterChip(selected = !round, onClick = { setRound(false) }, label = { Text(uiText(uiText("В одну сторону"))) })
                         Spacer(Modifier.width(8.dp))
-                        FilterChip(selected = round, onClick = { setRound(true) }, label = { Text(uiText("Туда и обратно")) })
+                        FilterChip(selected = round, onClick = { setRound(true) }, label = { Text(uiText(uiText("Туда и обратно"))) })
                     }
-                    OutlinedTextField(date, setDate, Modifier.fillMaxWidth(), label = { Text(uiText("Дата вылета")) }, leadingIcon = { Icon(Icons.Default.CalendarMonth, null) }, singleLine = true)
+                    OutlinedTextField(date, setDate, Modifier.fillMaxWidth(), label = { Text(uiText(uiText("Дата вылета"))) }, leadingIcon = { Icon(Icons.Default.CalendarMonth, null) }, singleLine = true)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) { Text("Пассажиры", fontWeight = FontWeight.SemiBold); Text("$passengers взрослый(ых)", color = Muted, fontSize = 12.sp) }
+                        Column(Modifier.weight(1f)) { Text(uiText("Пассажиры"), fontWeight = FontWeight.SemiBold); Text("$passengers взрослый(ых)", color = Muted, fontSize = 12.sp) }
                         IconButton(onClick = minus) { Icon(Icons.Default.RemoveCircleOutline, null) }
                         IconButton(onClick = plus) { Icon(Icons.Default.AddCircleOutline, null) }
                     }
                     Button(onClick = search, Modifier.fillMaxWidth().height(50.dp), enabled = from != to) {
-                        Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text(uiText("Найти рейсы"))
+                        Icon(Icons.Default.Search, null); Spacer(Modifier.width(8.dp)); Text(uiText(uiText("Найти рейсы")))
                     }
                 }
             }
@@ -259,11 +259,11 @@ private fun HomeScreen(
                 QuickTile("Расписание", Icons.Default.Schedule, schedule, Modifier.weight(1f))
                 QuickTile("${allAirports.size} аэропортов мира", Icons.Default.Public, schedule, Modifier.weight(1f))
             }
-            Text("Популярные направления", color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(uiText("Популярные направления"), color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             listOf("KBP" to "FCO", "WAW" to "BCN", "FRA" to "JFK", "IST" to "DXB").forEach { (a, b) ->
                 Card(colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) { Text("${airport(a)}  →  ${airport(b)}", color = Navy, fontWeight = FontWeight.Bold); Text("Популярный маршрут", color = Muted, fontSize = 11.sp) }
+                        Column(Modifier.weight(1f)) { Text("${airport(a)}  →  ${airport(b)}", color = Navy, fontWeight = FontWeight.Bold); Text(uiText("Популярный маршрут"), color = Muted, fontSize = 11.sp) }
                         Icon(Icons.Default.FlightTakeoff, null, tint = Blue)
                     }
                 }
@@ -292,7 +292,7 @@ private fun SearchResults(from: String, to: String, passengers: Int, points: Int
     val results = direct + connecting
     Screen("Рейсы: ${airport(from)} → ${airport(to)}", "$passengers пассажир(а) · стоимость указана за одного") {
         if (results.isEmpty()) {
-            Text("На выбранную дату вариантов пока нет. Попробуйте другой город или направление.", color = Muted)
+            Text(uiText("На выбранную дату вариантов пока нет. Попробуйте другой город или направление."), color = Muted)
             Text("Доступно аэропортов: ${allAirports.size} · направлений: ${routes.size}", color = Blue, fontWeight = FontWeight.SemiBold)
         } else {
             Text("Найдено вариантов: ${results.size}", color = Blue, fontWeight = FontWeight.SemiBold)
@@ -307,7 +307,7 @@ private fun SearchResults(from: String, to: String, passengers: Int, points: Int
                         Text(if (item.second == null) "${airport(item.first.from)}  →  ${airport(item.first.to)}" else "${airport(item.first.from)}  →  ${airport(item.first.to)}  →  ${airport(item.second!!.to)}", color = Navy, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         Text("${item.first.number}${item.second?.let { " · ${it.number}" } ?: ""}  ·  ${item.duration}", color = Muted, fontSize = 12.sp)
                         if (discount(points) > 0) Text("С учётом скидки Panorama Club: ${discount(points)}%", color = Color(0xFF16834A), fontSize = 12.sp)
-                        Button(onClick = { choose(item) }, Modifier.fillMaxWidth()) { Text(uiText("Выбрать рейс")) }
+                        Button(onClick = { choose(item) }, Modifier.fillMaxWidth()) { Text(uiText(uiText("Выбрать рейс"))) }
                     }
                 }
             }
@@ -324,8 +324,8 @@ private fun BookingSummary(route: String, fare: Int, pointsToEarn: Int, clubDisc
                 Text("Стоимость до скидки: €$fare", color = TextInk)
                 Text("Уровневая скидка Panorama Club: $clubDiscount%", color = Muted)
                 Text("Баллы к начислению после поездки: $pointsToEarn", color = Blue, fontWeight = FontWeight.SemiBold)
-                Text("Маршрут сохранён в разделе «Мои поездки».", color = Color(0xFF16834A))
-                Button(onClick = close, Modifier.fillMaxWidth()) { Text(uiText("Готово")) }
+                Text(uiText("Маршрут сохранён в разделе «Мои поездки»."), color = Color(0xFF16834A))
+                Button(onClick = close, Modifier.fillMaxWidth()) { Text(uiText(uiText("Готово"))) }
             }
         }
     }
@@ -335,17 +335,17 @@ private fun BookingSummary(route: String, fare: Int, pointsToEarn: Int, clubDisc
 private fun MyTrips(route: String, fare: Int, pendingPoints: Int, completed: Boolean, pass: () -> Unit, complete: () -> Unit, remove: () -> Unit) {
     Screen("Мои поездки", "Сохранённые маршруты") {
         if (route.isBlank()) {
-            Text("У вас пока нет сохранённых поездок.", color = Muted)
+            Text(uiText("У вас пока нет сохранённых поездок."), color = Muted)
         } else {
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(16.dp)) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("FLYUIA · ITINERARY", color = Blue, fontWeight = FontWeight.Bold)
+                    Text(uiText("FLYUIA · ITINERARY"), color = Blue, fontWeight = FontWeight.Bold)
                     Text(route, color = Navy, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text("Стоимость: €$fare", color = TextInk)
                     Text(if (completed) "Поездка завершена · баллы начислены" else "Ожидает завершения поездки · $pendingPoints баллов", color = Muted)
-                    OutlinedButton(onClick = pass, Modifier.fillMaxWidth()) { Text(uiText("Посмотреть маршрут")) }
-                    if (!completed) Button(onClick = complete, Modifier.fillMaxWidth()) { Text(uiText("Завершить поездку и начислить баллы")) }
-                    TextButton(onClick = remove) { Text(uiText("Удалить маршрут")) }
+                    OutlinedButton(onClick = pass, Modifier.fillMaxWidth()) { Text(uiText(uiText("Посмотреть маршрут"))) }
+                    if (!completed) Button(onClick = complete, Modifier.fillMaxWidth()) { Text(uiText(uiText("Завершить поездку и начислить баллы"))) }
+                    TextButton(onClick = remove) { Text(uiText(uiText("Удалить маршрут"))) }
                 }
             }
         }
@@ -357,11 +357,11 @@ private fun BoardingPass(first: String, last: String, route: String) {
     Screen("Детали поездки", "Информация о сохранённом маршруте") {
         Card(colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(18.dp)) {
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("flyUIA", color = Navy, fontSize = 25.sp, fontWeight = FontWeight.Black)
+                Text(uiText("flyUIA"), color = Navy, fontSize = 25.sp, fontWeight = FontWeight.Black)
                 HorizontalDivider()
                 Text(route.ifBlank { "Маршрут не выбран" }, color = Navy, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Text("Пассажир: ${first.ifBlank { "Имя" }} ${last.ifBlank { "Фамилия" }}", color = TextInk)
-                Text("Сведения о регистрации и посадочном талоне появятся после подключения системы бронирования.", color = Muted, fontSize = 12.sp)
+                Text(uiText("Сведения о регистрации и посадочном талоне появятся после подключения системы бронирования."), color = Muted, fontSize = 12.sp)
             }
         }
     }
@@ -371,7 +371,7 @@ private fun BoardingPass(first: String, last: String, route: String) {
 private fun FlightStatus() {
     var query by remember { mutableStateOf("") }
     Screen("Статус рейса", "Поиск по номеру рейса") {
-        OutlinedTextField(query, { query = it.uppercase() }, Modifier.fillMaxWidth(), label = { Text(uiText("Номер рейса")) }, singleLine = true)
+        OutlinedTextField(query, { query = it.uppercase() }, Modifier.fillMaxWidth(), label = { Text(uiText(uiText("Номер рейса"))) }, singleLine = true)
         val matches = routes.filter { query.isBlank() || it.number.contains(query, true) }
         matches.take(10).forEach { flight ->
             Card(colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
@@ -385,7 +385,7 @@ private fun FlightStatus() {
                 }
             }
         }
-        Text("Фактическое табло аэропортов пока не подключено.", color = Muted, fontSize = 11.sp)
+        Text(uiText("Фактическое табло аэропортов пока не подключено."), color = Muted, fontSize = 11.sp)
     }
 }
 
@@ -415,30 +415,30 @@ private fun ProfileScreen(
         } else filtered
     }
     Screen("Профиль", "Данные пассажира") {
-        OutlinedTextField(first, setFirst, Modifier.fillMaxWidth(), label = { Text("Имя") })
-        OutlinedTextField(last, setLast, Modifier.fillMaxWidth(), label = { Text("Фамилия") })
+        OutlinedTextField(first, setFirst, Modifier.fillMaxWidth(), label = { Text(uiText("Имя")) })
+        OutlinedTextField(last, setLast, Modifier.fillMaxWidth(), label = { Text(uiText("Фамилия")) })
         OutlinedButton(onClick = { showLanguages = true }, modifier = Modifier.fillMaxWidth()) {
-            Text("${uiText("Язык")}: ${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
+            Text("${uiText(uiText("Язык"))}: ${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
         }
-        Text("Рекомендации учитывают регион устройства и системный язык.", color = Muted, fontSize = 11.sp)
-        Button(onClick = club, Modifier.fillMaxWidth()) { Icon(Icons.Default.CardMembership, null); Spacer(Modifier.width(8.dp)); Text("Panorama Club") }
-        OutlinedButton(onClick = about, Modifier.fillMaxWidth()) { Text("О flyUIA") }
+        Text(uiText("Рекомендации учитывают регион устройства и системный язык."), color = Muted, fontSize = 11.sp)
+        Button(onClick = club, Modifier.fillMaxWidth()) { Icon(Icons.Default.CardMembership, null); Spacer(Modifier.width(8.dp)); Text(uiText("Panorama Club")) }
+        OutlinedButton(onClick = about, Modifier.fillMaxWidth()) { Text(uiText("О flyUIA")) }
     }
     if (showLanguages) {
         AlertDialog(
             onDismissRequest = { showLanguages = false },
-            title = { Text(uiText("Выберите язык")) },
+            title = { Text(uiText(uiText("Выберите язык"))) },
             text = {
                 Column(Modifier.heightIn(max = 430.dp)) {
                     OutlinedTextField(
                         value = languageQuery,
                         onValueChange = { languageQuery = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(uiText("Поиск языка")) },
+                        label = { Text(uiText(uiText("Поиск языка"))) },
                         singleLine = true
                     )
                     if (languageQuery.isBlank()) {
-                        Text(uiText("Рекомендуемые"), color = Blue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
+                        Text(uiText(uiText("Рекомендуемые")), color = Blue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
                     }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                         languageResults.forEach { option ->
@@ -461,7 +461,7 @@ private fun ProfileScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showLanguages = false; languageQuery = "" }) { Text(uiText("Закрыть")) }
+                TextButton(onClick = { showLanguages = false; languageQuery = "" }) { Text(uiText(uiText("Закрыть"))) }
             }
         )
     }
@@ -475,15 +475,15 @@ private fun PanoramaClub(points: Int, lifetimeEarned: Int, addPoints: (Int) -> U
     Screen("Panorama Club", "Больше путешествий — больше привилегий") {
         Card(colors = CardDefaults.cardColors(containerColor = Navy), shape = RoundedCornerShape(20.dp)) {
             Column(Modifier.fillMaxWidth().padding(22.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("PANORAMA CLUB", color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+                Text(uiText("PANORAMA CLUB"), color = Color.White, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
                 Text(currentTier.uppercase(), color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 Text(points.toString(), color = Color.White, fontSize = 38.sp, fontWeight = FontWeight.Black)
-                Text("баллов на вашем счёте", color = Color.White)
+                Text(uiText("баллов на вашем счёте"), color = Color.White)
                 LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(), color = Gold, trackColor = Color(0xFF426487))
                 Text(if (points >= 12000) "Максимальный уровень достигнут" else "До следующего уровня: ${(next - points).coerceAtLeast(0)} баллов", color = Color.White, fontSize = 12.sp)
             }
         }
-        Text("Ваши привилегии", color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(uiText("Ваши привилегии"), color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         listOf(
             Triple("Classic", "0 баллов", "Базовое участие · специальные предложения"),
             Triple("Silver", "1 000 баллов", "Скидка 5% · приоритетные предложения"),
@@ -501,8 +501,8 @@ private fun PanoramaClub(points: Int, lifetimeEarned: Int, addPoints: (Int) -> U
                 }
             }
         }
-        Text("Как накапливать баллы", color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        Text("5 баллов за каждый 1 € стоимости перелёта. Баллы начисляются после завершения поездки. Уровень зависит от текущего баланса.", color = Muted)
+        Text(uiText("Как накапливать баллы"), color = Navy, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(uiText("5 баллов за каждый 1 € стоимости перелёта. Баллы начисляются после завершения поездки. Уровень зависит от текущего баланса."), color = Muted)
         Text("Всего заработано за всё время: $lifetimeEarned баллов", color = TextInk, fontWeight = FontWeight.SemiBold)
     }
 }
@@ -522,7 +522,7 @@ private fun FlightSchedule() {
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(uiText("Город, страна, название или код")) },
+            label = { Text(uiText(uiText("Город, страна, название или код"))) },
             singleLine = true
         )
         Text("Показано ${matches.size} из ${allAirports.size}", color = Muted, fontSize = 12.sp)
@@ -531,7 +531,7 @@ private fun FlightSchedule() {
                 Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(item.city, color = Navy, fontWeight = FontWeight.SemiBold)
-                        Text("${item.name} · ${item.country}", color = Muted, fontSize = 11.sp)
+                        Text("${item.name} · ${item.countryName} (${item.country})", color = Muted, fontSize = 11.sp)
                     }
                     Text(item.code, color = Blue, fontWeight = FontWeight.Bold)
                 }
@@ -543,7 +543,7 @@ private fun FlightSchedule() {
 @Composable
 private fun About() {
     Screen("О flyUIA", "Ukraine International Airlines") {
-        Text("flyUIA объединяет направления, поиск перелётов, управление поездками и программу лояльности Panorama Club.", color = TextInk)
-        Text("Маршрутная сеть и тарифы в приложении представлены как встроенный каталог. Онлайн-бронирование, оплата, регистрация и оперативное табло требуют подключения авиационных систем.", color = Muted, fontSize = 12.sp)
+        Text(uiText("flyUIA объединяет направления, поиск перелётов, управление поездками и программу лояльности Panorama Club."), color = TextInk)
+        Text(uiText("Маршрутная сеть и тарифы в приложении представлены как встроенный каталог. Онлайн-бронирование, оплата, регистрация и оперативное табло требуют подключения авиационных систем."), color = Muted, fontSize = 12.sp)
     }
 }
