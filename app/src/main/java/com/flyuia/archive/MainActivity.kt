@@ -433,11 +433,30 @@ private fun PanoramaClub(points: Int, lifetimeEarned: Int, addPoints: (Int) -> U
 
 @Composable
 private fun FlightSchedule() {
-    Screen("Маршрутная сеть", "${allAirports.size} аэропортов · ${routes.size} направлений") {
-        allAirports.forEach { item ->
+    var query by remember { mutableStateOf("") }
+    val matches = remember(query, allAirports) {
+        if (query.isBlank()) allAirports.take(100)
+        else allAirports.filter {
+            it.city.contains(query, true) || it.country.contains(query, true) ||
+                it.code.contains(query, true) || it.name.contains(query, true)
+        }.take(100)
+    }
+    Screen("Весь мир · аэропорты", "${allAirports.size} аэропортов и аэродромов в глобальном каталоге") {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Город, страна, название или код") },
+            singleLine = true
+        )
+        Text("Показано ${matches.size} из ${allAirports.size}", color = Muted, fontSize = 12.sp)
+        matches.forEach { item ->
             Card(colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) { Text(item.city, color = Navy, fontWeight = FontWeight.SemiBold); Text(item.country, color = Muted, fontSize = 11.sp) }
+                    Column(Modifier.weight(1f)) {
+                        Text(item.city, color = Navy, fontWeight = FontWeight.SemiBold)
+                        Text("${item.name} · ${item.country}", color = Muted, fontSize = 11.sp)
+                    }
                     Text(item.code, color = Blue, fontWeight = FontWeight.Bold)
                 }
             }
