@@ -25,6 +25,7 @@ private val Blue = Color(0xFF087CC1)
 private val Sky = Color(0xFFEAF5FC)
 private val Gold = Color(0xFFFFD329)
 private val Muted = Color(0xFF71869A)
+private val Ink = Color(0xFF17324D)
 
 class MainActivity : ComponentActivity() {
  override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); setContent { App() } }
