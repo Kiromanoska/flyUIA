@@ -33,7 +33,6 @@ private data class Itinerary(val first: FlightRoute, val second: FlightRoute? = 
     val duration: String get() = if (second == null) first.duration else "${first.duration} + ${second.duration}"
 }
 
-private val airportByCode = airports.associateBy { it.code }
 private val routes = listOf(
     FlightRoute("KBP","WAW","PS 801","08:10","1h 35m",95), FlightRoute("KBP","PRG","PS 807","10:20","2h 05m",125),
     FlightRoute("KBP","BUD","PS 811","12:15","1h 40m",105), FlightRoute("KBP","VIE","PS 815","14:30","2h 00m",135),
@@ -208,7 +207,7 @@ private fun AirportPicker(label: String, selected: String, onSelect: (String) ->
             trailingIcon = { IconButton(onClick = { expanded = !expanded }) { Icon(Icons.Default.ExpandMore, null) } }
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.heightIn(max = 300.dp).background(Color.White)) {
-            airports.filter { it.label.contains(query, true) || it.code.contains(query, true) }.take(12).forEach { item ->
+            airports.filter { it.label.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) }.take(12).forEach { item ->
                 DropdownMenuItem(text = { Text(item.label) }, onClick = { onSelect(item.code); query = item.label; expanded = false })
             }
         }
