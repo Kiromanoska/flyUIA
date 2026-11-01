@@ -12,7 +12,7 @@ internal data class Airport(val city: String, val country: String, val code: Str
     val label: String get() = "$city, $countryName ($code)"
 }
 
-internal val airports = listOf(
+private fun airportChunk1() = listOf(
     Airport("Anaa", "PF", "AAA", "Anaa Airport"),
     Airport("Arish", "EG", "AAC", "El Arish International Airport"),
     Airport("Annaba", "DZ", "AAE", "Annaba Rabah Bitat Airport"),
@@ -262,7 +262,10 @@ internal val airports = listOf(
     Airport("Bauchi", "NG", "BCU", "Sir Abubakar Tafawa Balewa Bauchi State International Airport"),
     Airport("Hamilton", "BM", "BDA", "L.F. Wade International Airport"),
     Airport("Bundaberg", "AU", "BDB", "Bundaberg Airport"),
-    Airport("Badu Island", "AU", "BDD", "Badu Island Airport"),
+    Airport("Badu Island", "AU", "BDD", "Badu Island Airport")
+)
+
+private fun airportChunk2() = listOf(
     Airport("Bandar Lengeh", "IR", "BDH", "Bandar Lengeh International Airport"),
     Airport("Banjarbaru", "ID", "BDJ", "Syamsudin Noor International Airport"),
     Airport("Hartford", "US", "BDL", "Bradley International Airport"),
@@ -512,7 +515,10 @@ internal val airports = listOf(
     Airport("Carauari", "BR", "CAF", "Carauari Airport"),
     Airport("Cagliari", "IT", "CAG", "Cagliari Elmas Airport"),
     Airport("Cà Mau", "VN", "CAH", "Cà Mau Airport"),
-    Airport("Cairo", "EG", "CAI", "Cairo International Airport"),
+    Airport("Cairo", "EG", "CAI", "Cairo International Airport")
+)
+
+private fun airportChunk3() = listOf(
     Airport("Canaima", "VE", "CAJ", "Canaima Airport"),
     Airport("Akron", "US", "CAK", "Akron Canton Regional Airport"),
     Airport("Campbeltown", "GB", "CAL", "Campbeltown Airport"),
@@ -762,7 +768,10 @@ internal val airports = listOf(
     Airport("Dalbandin", "PK", "DBA", "Dalbandin Airport"),
     Airport("El Alamein", "EG", "DBB", "El Alamein International Airport"),
     Airport("Baicheng", "CN", "DBC", "Baicheng Chang'an Airport"),
-    Airport("Debre Marqos", "ET", "DBM", "Debre Markos Airport"),
+    Airport("Debre Marqos", "ET", "DBM", "Debre Markos Airport")
+)
+
+private fun airportChunk4() = listOf(
     Airport("Dubbo", "AU", "DBO", "Dubbo City Regional Airport"),
     Airport("Dubuque", "US", "DBQ", "Dubuque Regional Airport"),
     Airport("Darbhanga", "IN", "DBR", "Darbhanga Airport"),
@@ -1012,7 +1021,10 @@ internal val airports = listOf(
     Airport("Fakfak", "ID", "FKQ", "Fakfak Airport"),
     Airport("Fukushima", "JP", "FKS", "Fukushima Airport"),
     Airport("Florencia", "CO", "FLA", "Gustavo Artunduaga Paredes Airport"),
-    Airport("Flagstaff", "US", "FLG", "Flagstaff Pulliam Airport"),
+    Airport("Flagstaff", "US", "FLG", "Flagstaff Pulliam Airport")
+)
+
+private fun airportChunk5() = listOf(
     Airport("Fort Lauderdale", "US", "FLL", "Fort Lauderdale Hollywood International Airport"),
     Airport("Florianópolis", "BR", "FLN", "Hercílio Luz International Airport"),
     Airport("Florence", "US", "FLO", "Florence Regional Airport"),
@@ -1262,7 +1274,10 @@ internal val airports = listOf(
     Airport("Hammerfest", "NO", "HFT", "Hammerfest Airport"),
     Airport("Hargeisa", "SO", "HGA", "Egal International Airport"),
     Airport("Hughenden", "AU", "HGD", "Hughenden Airport"),
-    Airport("Hangzhou", "CN", "HGH", "Hangzhou Xiaoshan International Airport"),
+    Airport("Hangzhou", "CN", "HGH", "Hangzhou Xiaoshan International Airport")
+)
+
+private fun airportChunk6() = listOf(
     Airport("Itanagar", "IN", "HGI", "Itanagar Donyi Polo Hollongi Airport"),
     Airport("Heligoland", "DE", "HGL", "Helgoland-Düne Airport"),
     Airport("Mae Hong Son", "TH", "HGN", "Mae Hong Son Airport"),
@@ -1512,7 +1527,10 @@ internal val airports = listOf(
     Airport("Jacksonville metropolitan area", "US", "JAX", "Jacksonville International Airport"),
     Airport("Jember", "ID", "JBB", "Notohadinegoro Airport"),
     Airport("Qitai", "CN", "JBK", "Qitai Jiangbulake Airport"),
-    Airport("Santo Domingo", "DO", "JBQ", "La Isabela International Airport"),
+    Airport("Santo Domingo", "DO", "JBQ", "La Isabela International Airport")
+)
+
+private fun airportChunk7() = listOf(
     Airport("Jonesboro", "US", "JBR", "Jonesboro Municipal Airport"),
     Airport("Julia Creek Airport", "AU", "JCK", "Julia Creek Airport"),
     Airport("České Budějovice", "CZ", "JCL", "České Budějovice South Bohemian Airport"),
@@ -1762,7 +1780,10 @@ internal val airports = listOf(
     Airport("Krasnodar", "RU", "KRR", "Krasnodar Pashkovsky International Airport"),
     Airport("Kristiansand", "NO", "KRS", "Kristiansand Airport"),
     Airport("Khartoum", "SD", "KRT", "Khartoum International Airport"),
-    Airport("Türkmenbaşy", "TM", "KRW", "Turkmenbaşy International Airport"),
+    Airport("Türkmenbaşy", "TM", "KRW", "Turkmenbaşy International Airport")
+)
+
+private fun airportChunk8() = listOf(
     Airport("Karamay", "CN", "KRY", "Karamay Airport"),
     Airport("Tafunsak", "FM", "KSA", "Kosrae International Airport"),
     Airport("Košice", "SK", "KSC", "Košice International Airport"),
@@ -2012,7 +2033,10 @@ internal val airports = listOf(
     Airport("Lukla", "NP", "LUA", "Tenzing-Hillary Airport"),
     Airport("Lüderitz", "NA", "LUD", "Luderitz Airport"),
     Airport("Lugano", "CH", "LUG", "Lugano Airport"),
-    Airport("Cincinnati", "US", "LUK", "Cincinnati Municipal Airport Lunken Field"),
+    Airport("Cincinnati", "US", "LUK", "Cincinnati Municipal Airport Lunken Field")
+)
+
+private fun airportChunk9() = listOf(
     Airport("statutory interpretation", "CN", "LUM", "Dehong Mangshi International Airport"),
     Airport("Lusaka", "ZM", "LUN", "Kenneth Kaunda International Airport"),
     Airport("Kalaupapa", "US", "LUP", "Kalaupapa Airport"),
@@ -2262,7 +2286,10 @@ internal val airports = listOf(
     Airport("Marsa Matruh", "EG", "MUH", "Mersa Matruh International Airport"),
     Airport("Mauke Island", "CK", "MUK", "Mauke Airport"),
     Airport("Maturín", "VE", "MUN", "José Tadeo Monagas International Airport"),
-    Airport("Marudi", "MY", "MUR", "Marudi Airport"),
+    Airport("Marudi", "MY", "MUR", "Marudi Airport")
+)
+
+private fun airportChunk10() = listOf(
     Airport("Multan", "PK", "MUX", "Multan International Airport"),
     Airport("Musoma", "TZ", "MUZ", "Musoma Airport"),
     Airport("Franceville", "GA", "MVB", "M'Vengue El Hadj Omar Bongo Ondimba International Airport"),
@@ -2512,7 +2539,10 @@ internal val airports = listOf(
     Airport("Colón", "PA", "ONX", "Enrique Adolfo Jimenez Airport"),
     Airport("Toksook Bay", "US", "OOK", "Toksook Bay Airport"),
     Airport("Gold Coast", "AU", "OOL", "Gold Coast Airport"),
-    Airport("Cooma", "AU", "OOM", "Cooma Snowy Mountains Airport"),
+    Airport("Cooma", "AU", "OOM", "Cooma Snowy Mountains Airport")
+)
+
+private fun airportChunk11() = listOf(
     Airport("Miami", "US", "OPF", "Miami-Opa Locka Executive Airport"),
     Airport("Porto", "PT", "OPO", "Francisco de Sá Carneiro Airport"),
     Airport("Salinópolis", "BR", "OPP", "Salinópolis Airport"),
@@ -2762,7 +2792,10 @@ internal val airports = listOf(
     Airport("Puerto Vallarta", "MX", "PVR", "Puerto Vallarta International Airport"),
     Airport("Provo", "US", "PVU", "Provo Municipal Airport"),
     Airport("Pevek", "RU", "PWE", "Pevek Airport"),
-    Airport("Portland", "US", "PWM", "Portland International Jetport"),
+    Airport("Portland", "US", "PWM", "Portland International Jetport")
+)
+
+private fun airportChunk12() = listOf(
     Airport("Pavlodar", "KZ", "PWQ", "Pavlodar International Airport"),
     Airport("Mount Eba", "AU", "PXH", "Prominent Hill Airport"),
     Airport("Puerto Escondido", "MX", "PXM", "Puerto Escondido International Airport"),
@@ -3012,7 +3045,10 @@ internal val airports = listOf(
     Airport("Manzini", "SZ", "SHO", "King Mswati III International Airport"),
     Airport("Sheridan", "US", "SHR", "Sheridan County Airport"),
     Airport("Jingzhou", "CN", "SHS", "Jingzhou Shashi Airport"),
-    Airport("Shreveport", "US", "SHV", "Shreveport Regional Airport"),
+    Airport("Shreveport", "US", "SHV", "Shreveport Regional Airport")
+)
+
+private fun airportChunk13() = listOf(
     Airport("Sharurah governorate", "SA", "SHW", "Sharurah Domestic Airport"),
     Airport("Shinyanga", "TZ", "SHY", "Shinyanga Airport"),
     Airport("Espargos", "CV", "SID", "Amílcar Cabral International Airport"),
@@ -3262,7 +3298,10 @@ internal val airports = listOf(
     Airport("Kuala Terengganu", "MY", "TGG", "Sultan Mahmud Airport"),
     Airport("Tongoa Island", "VU", "TGH", "Tongoa Airport"),
     Airport("Tiga Island", "NC", "TGJ", "Tiga Airport"),
-    Airport("Târgu Mureș", "RO", "TGM", "Târgu Mureş Transilvania International Airport"),
+    Airport("Târgu Mureș", "RO", "TGM", "Târgu Mureş Transilvania International Airport")
+)
+
+private fun airportChunk14() = listOf(
     Airport("Tongliao", "CN", "TGO", "Tongliao Airport"),
     Airport("Tangará da Serra", "BR", "TGQ", "Tangará da Serra Airport"),
     Airport("Touggourt", "DZ", "TGR", "Touggourt Sidi Madhi Airport"),
@@ -3512,7 +3551,10 @@ internal val airports = listOf(
     Airport("Utirik Atoll", "MH", "UTK", "Utirik Airport"),
     Airport("Upington", "ZA", "UTN", "Upington Airport"),
     Airport("Utopia Creek", "US", "UTO", "Indian Mountain LRRS Airport"),
-    Airport("Rayong", "TH", "UTP", "U-Tapao–Rayong–Pattaya International Airport"),
+    Airport("Rayong", "TH", "UTP", "U-Tapao–Rayong–Pattaya International Airport")
+)
+
+private fun airportChunk15() = listOf(
     Airport("Mthatha", "ZA", "UTT", "K. D. Matanzima Airport"),
     Airport("Bugulma", "RU", "UUA", "Bugulma Airport"),
     Airport("Ulan-Ude", "RU", "UUD", "Baikal International Airport"),
@@ -3762,7 +3804,10 @@ internal val airports = listOf(
     Airport("Nain", "CA", "YDP", "Nain Airport"),
     Airport("Bloodvein First Nation", "CA", "YDV", "Bloodvein River Airport"),
     Airport("Edmonton", "CA", "YEG", "Edmonton International Airport"),
-    Airport("Yenişehir", "TR", "YEI", "Bursa Yenişehir Airport"),
+    Airport("Yenişehir", "TR", "YEI", "Bursa Yenişehir Airport")
+)
+
+private fun airportChunk16() = listOf(
     Airport("Arviat", "CA", "YEK", "Arviat Airport"),
     Airport("Fort Severn First Nation", "CA", "YER", "Fort Severn Airport"),
     Airport("Inuvik", "CA", "YEV", "Inuvik Mike Zubko Airport"),
@@ -4012,7 +4057,10 @@ internal val airports = listOf(
     Airport("Round Lake", "CA", "ZRJ", "Round Lake (Weagamow Lake) Airport"),
     Airport("San Salvador Island", "BS", "ZSA", "San Salvador International Airport"),
     Airport("Saint-Pierre", "RE", "ZSE", "Saint-Pierre Pierrefonds Airport"),
-    Airport("Sandy Lake", "CA", "ZSJ", "Sandy Lake Airport"),
+    Airport("Sandy Lake", "CA", "ZSJ", "Sandy Lake Airport")
+)
+
+private fun airportChunk17() = listOf(
     Airport("Tête-à-la-Baleine", "CA", "ZTB", "Tête-à-la-Baleine Airport"),
     Airport("Zakynthos", "GR", "ZTH", "Zakynthos International Airport Dionysios Solomos"),
     Airport("Shamattawa First Nation", "CA", "ZTM", "Shamattawa Airport"),
@@ -4022,5 +4070,24 @@ internal val airports = listOf(
     Airport("Zunyi", "CN", "ZYI", "Zunyi Xinzhou Airport"),
     Airport("Sylhet", "BD", "ZYL", "Osmany International Airport")
 )
+internal val airports = listOf(
+    airportChunk1(),
+    airportChunk2(),
+    airportChunk3(),
+    airportChunk4(),
+    airportChunk5(),
+    airportChunk6(),
+    airportChunk7(),
+    airportChunk8(),
+    airportChunk9(),
+    airportChunk10(),
+    airportChunk11(),
+    airportChunk12(),
+    airportChunk13(),
+    airportChunk14(),
+    airportChunk15(),
+    airportChunk16(),
+    airportChunk17()
+).flatten()
 
 internal val airportByCode = airports.associateBy { it.code }
