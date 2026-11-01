@@ -114,7 +114,7 @@ fun FlyUIAApp() {
             bottomBar = {
                 if (page.isEmpty()) NavigationBar(containerColor = Color.White) {
                     listOf("Главная" to Icons.Default.Home, "Мои поездки" to Icons.Default.Luggage, "Статус" to Icons.Default.Flight, "Профиль" to Icons.Default.Person).forEach { (name, icon) ->
-                        NavigationBarItem(selected = tab == name, onClick = { tab = name }, icon = { Icon(icon, null) }, label = { Text(name, fontSize = 10.sp) })
+                        NavigationBarItem(selected = tab == name, onClick = { tab = name }, icon = { Icon(icon, null) }, label = { Text(uiText(name), fontSize = 10.sp) })
                     }
                 }
             }
@@ -190,8 +190,8 @@ private fun Header() {
 @Composable
 private fun Screen(title: String, subtitle: String? = null, content: @Composable ColumnScope.() -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text(title, color = Navy, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-        if (subtitle != null) Text(subtitle, color = Muted, fontSize = 13.sp)
+        Text(uiText(title), color = Navy, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        if (subtitle != null) Text(uiText(subtitle), color = Muted, fontSize = 13.sp)
         content()
     }
 }
@@ -205,7 +205,7 @@ private fun AirportPicker(label: String, selected: String, onSelect: (String) ->
             value = query,
             onValueChange = { query = it; expanded = true },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(label) },
+            label = { Text(uiText(label)) },
             singleLine = true,
             trailingIcon = { IconButton(onClick = { expanded = !expanded }) { Icon(Icons.Default.ExpandMore, null) } }
         )
