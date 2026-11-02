@@ -107,7 +107,7 @@ fun FlyUIAApp() {
         if (!permission) return
         fun applyLocation(location: Location) {
             nearbyAirportCodes = allAirports.asSequence()
-                .filter { it.latitude != null && it.longitude != null }
+                .filter { it.code.length == 3 && it.latitude != null && it.longitude != null }
                 .map { airport ->
                     val result = FloatArray(1)
                     Location.distanceBetween(location.latitude, location.longitude, airport.latitude!!, airport.longitude!!, result)
@@ -127,6 +127,10 @@ fun FlyUIAApp() {
                     applyLocation(location)
                     try { manager.removeUpdates(this) } catch (_: Exception) { }
                 }
+                override fun onProviderEnabled(provider: String) {}
+                override fun onProviderDisabled(provider: String) {}
+                @Deprecated("Deprecated in Android")
+                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
             }
             try { manager.requestLocationUpdates(provider, 0L, 0f, listener) } catch (_: SecurityException) { }
         }
@@ -315,7 +319,7 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
             Spacer(Modifier.width(22.dp))
             Text(title, color = TextInk, fontSize = 20.sp)
         }
-        OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp), placeholder = { Text("Поиск города или аэропорта") }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
+        OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp), placeholder = { Text(uiText("Поиск города или аэропорта")) }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             if (query.isBlank() && nearbyAirportCodes.isNotEmpty()) {
                 Text(uiText("БЛИЖАЙШИЕ АЭРОПОРТЫ"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
@@ -333,7 +337,7 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
                     }
                 }
             }
-            if (query.isBlank()) Text("УКРАИНА", Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
+            if (query.isBlank()) Text(uiText("УКРАИНА"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
             results.forEach { item ->
                 Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
@@ -544,8 +548,10 @@ private fun ProfileScreen(
     Screen("Профиль", "Данные пассажира") {
         OutlinedTextField(first, setFirst, Modifier.fillMaxWidth(), label = { Text(uiText("Имя")) })
         OutlinedTextField(last, setLast, Modifier.fillMaxWidth(), label = { Text(uiText("Фамилия")) })
+        Text(uiText("Настройки приложения"), color = Navy, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(uiText("Язык интерфейса"), color = TextInk, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         OutlinedButton(onClick = { showLanguages = true }, modifier = Modifier.fillMaxWidth()) {
-            Text("${uiText(uiText("Язык"))}: ${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
+            Text("${selectedLanguage?.nativeName ?: languageCode} · ${selectedLanguage?.englishName ?: ""}")
         }
         Text(uiText("Рекомендации учитывают регион устройства и системный язык."), color = Muted, fontSize = 11.sp)
         Button(onClick = club, Modifier.fillMaxWidth()) { Icon(Icons.Default.CardMembership, null); Spacer(Modifier.width(8.dp)); Text(uiText("Panorama Club")) }
