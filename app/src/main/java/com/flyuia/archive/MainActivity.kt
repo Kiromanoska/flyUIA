@@ -14,6 +14,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -283,7 +286,17 @@ private fun AirportSelectionField(label: String, selected: String, open: () -> U
 @Composable
 private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirportCodes: List<String>, onBack: () -> Unit, onSelect: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
-    val results = remember(query, allAirports) { allAirports.filter { query.isBlank() || it.city.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) || it.countryName.contains(query, true) }.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }) }
+    // Sort once; the search field only filters this cached list.
+    val sortedAirports = remember { allAirports.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }.thenBy { it.code }) }
+    val results = remember(query, sortedAirports) {
+        if (query.isBlank()) sortedAirports
+        else sortedAirports.filter {
+            it.city.contains(query, ignoreCase = true) ||
+                it.code.contains(query, ignoreCase = true) ||
+                it.name.contains(query, ignoreCase = true) ||
+                it.countryName.contains(query, ignoreCase = true)
+        }
+    }
     Column(Modifier.fillMaxSize().background(Color.White)) {
         Row(Modifier.fillMaxWidth().background(Color(0xFFF1F1F1)).padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Close, contentDescription = "Закрыть", modifier = Modifier.clickable { onBack() }, tint = TextInk)
@@ -291,16 +304,19 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
             Text(title, color = TextInk, fontSize = 20.sp)
         }
         OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp), placeholder = { Text(uiText("Поиск города или аэропорта")) }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+        // LazyColumn creates only visible rows instead of thousands of Compose nodes at once.
+        LazyColumn(Modifier.weight(1f)) {
             if (query.isBlank() && nearbyAirportCodes.isNotEmpty()) {
-                Text(uiText("БЛИЖАЙШИЕ АЭРОПОРТЫ"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
-                nearbyAirportCodes.forEach { code ->
-                    val airport = allAirportByCode[code]
-                    if (airport != null) {
+                item(key = "nearby-header") {
+                    Text(uiText("БЛИЖАЙШИЕ АЭРОПОРТЫ"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
+                }
+                items(nearbyAirportCodes, key = { "nearby-\$it" }) { code ->
+                    val nearby = allAirportByCode[code]
+                    if (nearby != null) {
                         Row(Modifier.fillMaxWidth().clickable { onSelect(code) }.padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text(airport.city, color = if (code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
-                                Text(airport.countryName, color = Muted, fontSize = 12.sp)
+                                Text(nearby.city, color = if (code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
+                                Text(nearby.countryName, color = Muted, fontSize = 12.sp)
                             }
                             Text(code, color = Color.LightGray, fontSize = 16.sp)
                         }
@@ -308,19 +324,19 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
                     }
                 }
             }
-            results.groupBy { it.countryName }.forEach { (countryName, airports) ->
-                if (query.isNotBlank() || airports.isNotEmpty()) {
-                    Text(countryName.uppercase(), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
-                    airports.forEach { item ->
-                        Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(item.city, color = if (item.code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
-                                Text(item.name, color = Muted, fontSize = 11.sp)
-                            }
-                            Text(item.code, color = Color.LightGray, fontSize = 16.sp)
-                        }
-                        HorizontalDivider(color = Color(0xFFE2E2E2))
+            itemsIndexed(results, key = { _, airport -> "airport-\${airport.code}" }) { index, item ->
+                Column {
+                    if (index == 0 || results[index - 1].countryName != item.countryName) {
+                        Text(item.countryName.uppercase(), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
                     }
+                    Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(item.city, color = if (item.code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
+                            Text(item.name, color = Muted, fontSize = 11.sp)
+                        }
+                        Text(item.code, color = Color.LightGray, fontSize = 16.sp)
+                    }
+                    HorizontalDivider(color = Color(0xFFE2E2E2))
                 }
             }
         }
