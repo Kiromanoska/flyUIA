@@ -43,7 +43,7 @@ internal fun recommendedLanguageCodes(countryCode: String = Locale.getDefault().
         "NL" -> listOf("nl", "en", "de")
         "SE", "NO", "DK", "FI", "IS" -> listOf("en", "sv", "no", "da", "fi")
         "RS", "HR", "BA", "ME" -> listOf("sr", "hr", "bs", "en")
-        else -> emptyList()
+        else -> listOf("en", "es", "fr", "de", "pt", "it", "pl", "tr")
     }
     val deviceLanguage = Locale.getDefault().language
     return (regional + deviceLanguage + "en").distinct().filter { code ->
