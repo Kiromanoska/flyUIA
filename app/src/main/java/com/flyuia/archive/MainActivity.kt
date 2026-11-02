@@ -280,39 +280,10 @@ private fun AirportSelectionField(label: String, selected: String, open: () -> U
     }
 }
 
-private data class CountryAirport(val country: String, val city: String, val code: String, val airportName: String)
-
-private val countryAirportDirectory = listOf(
-    CountryAirport("Украина", "Борисполь / Киев", "KBP", "Международный аэропорт Борисполь"),
-    CountryAirport("Украина", "Винница", "VIN", "Международный аэропорт Винница (Гавришевка)"),
-    CountryAirport("Украина", "Днепр", "DNK", "Международный аэропорт Днепр"),
-    CountryAirport("Украина", "Донецк", "DOK", "Международный аэропорт Донецк"),
-    CountryAirport("Украина", "Запорожье", "OZH", "Международный аэропорт Запорожье"),
-    CountryAirport("Украина", "Ивано-Франковск", "IFO", "Международный аэропорт Ивано-Франковск"),
-    CountryAirport("Украина", "Киев (Жуляны)", "IEV", "Международный аэропорт имени Игоря Сикорского"),
-    CountryAirport("Украина", "Кривой Рог", "KWG", "Международный аэропорт Кривой Рог"),
-    CountryAirport("Украина", "Луганск", "VSG", "Международный аэропорт Луганск"),
-    CountryAirport("Украина", "Львов", "LWO", "Международный аэропорт Львов имени Даниила Галицкого"),
-    CountryAirport("Украина", "Мариуполь", "MPW", "Международный аэропорт Мариуполь"),
-    CountryAirport("Украина", "Николаев", "NLV", "Международный аэропорт Николаев"),
-    CountryAirport("Украина", "Одеса", "ODS", "Международный аэропорт Одеса"),
-    CountryAirport("Украина", "Полтава", "PLV", "Международный аэропорт Полтава"),
-    CountryAirport("Украина", "Ровно", "RWN", "Международный аэропорт Ровно"),
-    CountryAirport("Украина", "Севастополь", "UKS", "Международный аэропорт Бельбек"),
-    CountryAirport("Украина", "Симферополь", "SIP", "Международный аэропорт Симферополь"),
-    CountryAirport("Украина", "Сумы", "UMY", "Аэропорт Сумы"),
-    CountryAirport("Украина", "Тернополь", "TNL", "Международный аэропорт Тернополь"),
-    CountryAirport("Украина", "Ужгород", "UDJ", "Международный аэропорт Ужгород"),
-    CountryAirport("Украина", "Харьков", "HRK", "Международный аэропорт Харьков"),
-    CountryAirport("Украина", "Херсон", "KHE", "Международный аэропорт Херсон"),
-    CountryAirport("Украина", "Черкассы", "CKC", "Международный аэропорт Черкассы"),
-    CountryAirport("Украина", "Черновцы", "CWC", "Международный аэропорт Черновцы имени Леонида Каденюка")
-)
-
 @Composable
 private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirportCodes: List<String>, onBack: () -> Unit, onSelect: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
-    val results = remember(query) { countryAirportDirectory.filter { query.isBlank() || it.city.contains(query, true) || it.code.contains(query, true) || it.airportName.contains(query, true) || it.country.contains(query, true) } }
+    val results = remember(query, allAirports) { allAirports.filter { query.isBlank() || it.city.contains(query, true) || it.code.contains(query, true) || it.name.contains(query, true) || it.countryName.contains(query, true) }.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }) }
     Column(Modifier.fillMaxSize().background(Color.White)) {
         Row(Modifier.fillMaxWidth().background(Color(0xFFF1F1F1)).padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Close, contentDescription = "Закрыть", modifier = Modifier.clickable { onBack() }, tint = TextInk)
@@ -337,16 +308,20 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
                     }
                 }
             }
-            if (query.isBlank()) Text(uiText("УКРАИНА"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
-            results.forEach { item ->
-                Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(item.city, color = if (item.code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
-                        Text(item.airportName, color = Muted, fontSize = 11.sp)
+            results.groupBy { it.countryName }.forEach { (countryName, airports) ->
+                if (query.isNotBlank() || airports.isNotEmpty()) {
+                    Text(countryName.uppercase(), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
+                    airports.forEach { item ->
+                        Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(item.city, color = if (item.code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
+                                Text(item.name, color = Muted, fontSize = 11.sp)
+                            }
+                            Text(item.code, color = Color.LightGray, fontSize = 16.sp)
+                        }
+                        HorizontalDivider(color = Color(0xFFE2E2E2))
                     }
-                    Text(item.code, color = Color.LightGray, fontSize = 16.sp)
                 }
-                HorizontalDivider(color = Color(0xFFE2E2E2))
             }
         }
         OutlinedButton(onClick = onBack, Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 14.dp)) { Text("НАЗАД") }
