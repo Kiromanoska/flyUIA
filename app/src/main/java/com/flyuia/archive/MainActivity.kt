@@ -303,10 +303,9 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
     var query by remember { mutableStateOf("") }
     // Catalogue sorting and filtering run off the UI thread.
     val sortedAirports = sortedAirportCatalog
-    val results by produceState(initialValue = emptyList<Airport>(), query, sortedAirports) {
-        value = withContext(Dispatchers.Default) {
-            if (query.isBlank()) sortedAirports
-            else sortedAirports.filter {
+    val results by produceState(initialValue = sortedAirports, query, sortedAirports) {
+        value = if (query.isBlank()) sortedAirports else withContext(Dispatchers.Default) {
+            sortedAirports.filter {
                 it.city.contains(query, ignoreCase = true) ||
                     it.code.contains(query, ignoreCase = true) ||
                     it.name.contains(query, ignoreCase = true) ||
