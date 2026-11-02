@@ -23,7 +23,9 @@ internal fun loadGlobalAirportCatalog(context: Context) {
                 city = row.optString("city", code),
                 country = row.optString("country", ""),
                 code = code,
-                name = row.optString("name", code)
+                name = row.optString("name", code),
+                latitude = if (row.has("latitude") && !row.isNull("latitude")) row.optDouble("latitude") else null,
+                longitude = if (row.has("longitude") && !row.isNull("longitude")) row.optDouble("longitude") else null
             )
         }
         if (loaded.isNotEmpty()) {
