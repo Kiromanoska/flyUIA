@@ -324,7 +324,14 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
         }
         OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp), placeholder = { Text(uiText("Поиск города или аэропорта")) }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
         // LazyColumn creates only visible rows instead of thousands of Compose nodes at once.
-        LazyColumn(Modifier.weight(1f)) {
+        if (!airportCatalogReady) {
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    CircularProgressIndicator()
+                    Text("Подготавливаем каталог аэропортов…", color = Muted, fontSize = 13.sp)
+                }
+            }
+        } else LazyColumn(Modifier.weight(1f)) {
             if (query.isBlank() && nearbyAirportCodes.isNotEmpty()) {
                 item(key = "nearby-header") {
                     Text(uiText("БЛИЖАЙШИЕ АЭРОПОРТЫ"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
