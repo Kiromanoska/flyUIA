@@ -14,6 +14,15 @@ internal var allAirports: List<Airport> by mutableStateOf(airports)
 internal var allAirportByCode: Map<String, Airport> by mutableStateOf(airportByCode)
     private set
 
+// Computed once in the background during app startup and reused by every picker opening.
+internal val sortedAirportCatalog: List<Airport> by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    allAirports.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }.thenBy { it.code })
+}
+
+internal fun warmAirportCatalog() {
+    sortedAirportCatalog.size
+}
+
 internal suspend fun loadGlobalAirportCatalog(context: Context) {
     val loaded = withContext(Dispatchers.IO) {
         try {

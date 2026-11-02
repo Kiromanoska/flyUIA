@@ -9,6 +9,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -97,6 +100,8 @@ private fun nextTier(points: Int) = when {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Warm the full airport index while the home screen is starting, not on first tap.
+        lifecycleScope.launch(Dispatchers.Default) { warmAirportCatalog() }
         setContent { FlyUIAApp() }
     }
 }
@@ -105,7 +110,6 @@ class MainActivity : ComponentActivity() {
 fun FlyUIAApp() {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("flyuia", 0) }
-    LaunchedEffect(Unit) { loadGlobalAirportCatalog(context.applicationContext) }
     val coroutineScope = rememberCoroutineScope()
     var nearbyAirportCodes by remember { mutableStateOf(emptyList<String>()) }
     fun updateNearbyAirports() {
@@ -298,11 +302,7 @@ private fun AirportSelectionField(label: String, selected: String, open: () -> U
 private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirportCodes: List<String>, onBack: () -> Unit, onSelect: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
     // Catalogue sorting and filtering run off the UI thread.
-    val sortedAirports by produceState(initialValue = emptyList<Airport>(), allAirports) {
-        value = withContext(Dispatchers.Default) {
-            allAirports.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }.thenBy { it.code })
-        }
-    }
+    val sortedAirports = sortedAirportCatalog
     val results by produceState(initialValue = emptyList<Airport>(), query, sortedAirports) {
         value = withContext(Dispatchers.Default) {
             if (query.isBlank()) sortedAirports
