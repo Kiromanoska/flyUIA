@@ -24,6 +24,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
@@ -93,7 +97,6 @@ private fun nextTier(points: Int) = when {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loadGlobalAirportCatalog(this)
         setContent { FlyUIAApp() }
     }
 }
@@ -102,6 +105,8 @@ class MainActivity : ComponentActivity() {
 fun FlyUIAApp() {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("flyuia", 0) }
+    LaunchedEffect(Unit) { loadGlobalAirportCatalog(context.applicationContext) }
+    val coroutineScope = rememberCoroutineScope()
     var nearbyAirportCodes by remember { mutableStateOf(emptyList<String>()) }
     fun updateNearbyAirports() {
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -109,14 +114,20 @@ fun FlyUIAApp() {
             context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (!permission) return
         fun applyLocation(location: Location) {
-            nearbyAirportCodes = allAirports.asSequence()
-                .filter { it.code.length == 3 && it.latitude != null && it.longitude != null }
-                .map { airport ->
-                    val result = FloatArray(1)
-                    Location.distanceBetween(location.latitude, location.longitude, airport.latitude!!, airport.longitude!!, result)
-                    airport.code to result[0]
+            val airportSnapshot = allAirports
+            coroutineScope.launch {
+                val nearest = withContext(Dispatchers.Default) {
+                    airportSnapshot.asSequence()
+                        .filter { it.code.length == 3 && it.latitude != null && it.longitude != null }
+                        .map { airport ->
+                            val result = FloatArray(1)
+                            Location.distanceBetween(location.latitude, location.longitude, airport.latitude!!, airport.longitude!!, result)
+                            airport.code to result[0]
+                        }
+                        .sortedBy { it.second }.take(3).map { it.first }.toList()
                 }
-                .sortedBy { it.second }.take(3).map { it.first }.toList()
+                nearbyAirportCodes = nearest
+            }
         }
         val lastKnown = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)
             .mapNotNull { provider -> try { manager.getLastKnownLocation(provider) } catch (_: Exception) { null } }
@@ -286,15 +297,21 @@ private fun AirportSelectionField(label: String, selected: String, open: () -> U
 @Composable
 private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirportCodes: List<String>, onBack: () -> Unit, onSelect: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
-    // Sort once; the search field only filters this cached list.
-    val sortedAirports = remember { allAirports.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }.thenBy { it.code }) }
-    val results = remember(query, sortedAirports) {
-        if (query.isBlank()) sortedAirports
-        else sortedAirports.filter {
-            it.city.contains(query, ignoreCase = true) ||
-                it.code.contains(query, ignoreCase = true) ||
-                it.name.contains(query, ignoreCase = true) ||
-                it.countryName.contains(query, ignoreCase = true)
+    // Catalogue sorting and filtering run off the UI thread.
+    val sortedAirports by produceState(initialValue = emptyList<Airport>(), allAirports) {
+        value = withContext(Dispatchers.Default) {
+            allAirports.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }.thenBy { it.code })
+        }
+    }
+    val results by produceState(initialValue = emptyList<Airport>(), query, sortedAirports) {
+        value = withContext(Dispatchers.Default) {
+            if (query.isBlank()) sortedAirports
+            else sortedAirports.filter {
+                it.city.contains(query, ignoreCase = true) ||
+                    it.code.contains(query, ignoreCase = true) ||
+                    it.name.contains(query, ignoreCase = true) ||
+                    it.countryName.contains(query, ignoreCase = true)
+            }
         }
     }
     Column(Modifier.fillMaxSize().background(Color.White)) {
