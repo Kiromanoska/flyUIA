@@ -1,8 +1,16 @@
 package com.flyuia.archive
 
 import android.os.Bundle
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +22,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -88,8 +97,43 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FlyUIAApp() {
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("flyuia", 0) }
+    var nearbyAirportCodes by remember { mutableStateOf(emptyList<String>()) }
+    fun updateNearbyAirports() {
+        val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val permission = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!permission) return
+        fun applyLocation(location: Location) {
+            nearbyAirportCodes = allAirports.asSequence()
+                .filter { it.latitude != null && it.longitude != null }
+                .map { airport ->
+                    val result = FloatArray(1)
+                    Location.distanceBetween(location.latitude, location.longitude, airport.latitude!!, airport.longitude!!, result)
+                    airport.code to result[0]
+                }
+                .sortedBy { it.second }.take(3).map { it.first }.toList()
+        }
+        val lastKnown = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)
+            .mapNotNull { provider -> try { manager.getLastKnownLocation(provider) } catch (_: Exception) { null } }
+            .minByOrNull { it.accuracy }
+        if (lastKnown != null) applyLocation(lastKnown)
+        else {
+            val provider = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)
+                .firstOrNull { try { manager.isProviderEnabled(it) } catch (_: Exception) { false } } ?: return
+            val listener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    applyLocation(location)
+                    try { manager.removeUpdates(this) } catch (_: Exception) { }
+                }
+            }
+            try { manager.requestLocationUpdates(provider, 0L, 0f, listener) } catch (_: SecurityException) { }
+        }
+    }
+    val locationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+        if (grants[Manifest.permission.ACCESS_FINE_LOCATION] == true || grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true) updateNearbyAirports()
+    }
     var tab by remember { mutableStateOf("Главная") }
     var page by remember { mutableStateOf("") }
     var airportPickerTarget by remember { mutableStateOf("from") }
@@ -125,7 +169,7 @@ fun FlyUIAApp() {
                     Row(Modifier.fillMaxWidth().background(Navy).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.ArrowBack, "Назад", tint = Color.White, modifier = Modifier.clickable { page = "" })
                         Spacer(Modifier.width(14.dp))
-                        Text(page, color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                        Text(uiText(page), color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
                     }
                     when (page) {
                         "Результаты поиска" -> SearchResults(from, to, passengers, points) { flight ->
@@ -146,6 +190,7 @@ fun FlyUIAApp() {
                         "Выбор аэропорта" -> CountryAirportPicker(
                             title = if (airportPickerTarget == "from") "Вылет из" else "Прилёт в",
                             selectedCode = if (airportPickerTarget == "from") from else to,
+                            nearbyAirportCodes = if (airportPickerTarget == "from") nearbyAirportCodes else emptyList(),
                             onBack = { page = "" },
                             onSelect = { code ->
                                 if (airportPickerTarget == "from") from = code else to = code
@@ -163,7 +208,16 @@ fun FlyUIAApp() {
                         { travelDate = it }, { passengers = (passengers + 1).coerceAtMost(9) },
                         { passengers = (passengers - 1).coerceAtLeast(1) }, { roundTrip = it },
                         { page = "Результаты поиска" }, { page = "Расписание" },
-                        { target -> airportPickerTarget = target; page = "Выбор аэропорта" }
+                        { target ->
+                            airportPickerTarget = target
+                            page = "Выбор аэропорта"
+                            if (target == "from") {
+                                val hasPermission = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                                    context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                if (hasPermission) updateNearbyAirports()
+                                else locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                            }
+                        }
                     )
                     "Мои поездки" -> MyTrips(savedFlight, savedFare, savedPoints, tripCompleted,
                         { page = "Посадочный талон" },
@@ -252,7 +306,7 @@ private val countryAirportDirectory = listOf(
 )
 
 @Composable
-private fun CountryAirportPicker(title: String, selectedCode: String, onBack: () -> Unit, onSelect: (String) -> Unit) {
+private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirportCodes: List<String>, onBack: () -> Unit, onSelect: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
     val results = remember(query) { countryAirportDirectory.filter { query.isBlank() || it.city.contains(query, true) || it.code.contains(query, true) || it.airportName.contains(query, true) || it.country.contains(query, true) } }
     Column(Modifier.fillMaxSize().background(Color.White)) {
@@ -262,8 +316,24 @@ private fun CountryAirportPicker(title: String, selectedCode: String, onBack: ()
             Text(title, color = TextInk, fontSize = 20.sp)
         }
         OutlinedTextField(value = query, onValueChange = { query = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp), placeholder = { Text("Поиск города или аэропорта") }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
-        if (query.isBlank()) Text("УКРАИНА", Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            if (query.isBlank() && nearbyAirportCodes.isNotEmpty()) {
+                Text(uiText("БЛИЖАЙШИЕ АЭРОПОРТЫ"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
+                nearbyAirportCodes.forEach { code ->
+                    val airport = allAirportByCode[code]
+                    if (airport != null) {
+                        Row(Modifier.fillMaxWidth().clickable { onSelect(code) }.padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(airport.city, color = if (code == selectedCode) Color(0xFFB00078) else TextInk, fontSize = 18.sp)
+                                Text(airport.countryName, color = Muted, fontSize = 12.sp)
+                            }
+                            Text(code, color = Color.LightGray, fontSize = 16.sp)
+                        }
+                        HorizontalDivider(color = Color(0xFFE2E2E2))
+                    }
+                }
+            }
+            if (query.isBlank()) Text("УКРАИНА", Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
             results.forEach { item ->
                 Row(Modifier.fillMaxWidth().clickable { onSelect(item.code) }.padding(horizontal = 18.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
