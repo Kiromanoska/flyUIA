@@ -29,6 +29,8 @@ with open(source, encoding="utf-8-sig", newline="") as stream:
             "city": (row.get("municipality") or "").strip() or (row.get("name") or code).strip(),
             "country": (row.get("iso_country") or "").strip().upper(),
             "name": (row.get("name") or code).strip(),
+            "latitude": lat,
+            "longitude": lon,
         })
 
 with open(target, "wb") as output:
