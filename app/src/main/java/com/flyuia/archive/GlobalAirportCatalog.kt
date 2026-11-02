@@ -15,6 +15,8 @@ internal var allAirportByCode: Map<String, Airport> by mutableStateOf(airportByC
     private set
 internal var sortedAirportCatalog: List<Airport> by mutableStateOf(airports)
     private set
+internal var airportCatalogReady: Boolean by mutableStateOf(false)
+    private set
 
 internal suspend fun loadGlobalAirportCatalog(context: Context) {
     val loaded = try {
@@ -52,4 +54,5 @@ internal suspend fun warmAirportCatalog() {
         allAirports.sortedWith(compareBy<Airport> { it.countryName }.thenBy { it.city }.thenBy { it.code })
     }
     sortedAirportCatalog = sorted
+    airportCatalogReady = true
 }
