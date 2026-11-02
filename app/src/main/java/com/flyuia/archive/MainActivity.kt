@@ -310,7 +310,7 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
                 item(key = "nearby-header") {
                     Text(uiText("БЛИЖАЙШИЕ АЭРОПОРТЫ"), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
                 }
-                items(nearbyAirportCodes, key = { "nearby-\$it" }) { code ->
+                items(nearbyAirportCodes, key = { "nearby-" + it }) { code ->
                     val nearby = allAirportByCode[code]
                     if (nearby != null) {
                         Row(Modifier.fillMaxWidth().clickable { onSelect(code) }.padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -324,7 +324,7 @@ private fun CountryAirportPicker(title: String, selectedCode: String, nearbyAirp
                     }
                 }
             }
-            itemsIndexed(results, key = { _, airport -> "airport-\${airport.code}" }) { index, item ->
+            itemsIndexed(results, key = { _, airport -> "airport-" + airport.code }) { index, item ->
                 Column {
                     if (index == 0 || results[index - 1].countryName != item.countryName) {
                         Text(item.countryName.uppercase(), Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp), color = Muted, fontSize = 13.sp)
