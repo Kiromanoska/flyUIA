@@ -162,5 +162,5 @@ internal fun uiText(source: String): String {
         "en" -> englishUi
         else -> emptyMap()
     }
-    return table[source] ?: extendedUiText(source, code) ?: if (code !in setOf("ru", "uk", "bg", "en")) englishUi[source] ?: source else source
+    return table[source] ?: extendedUiText(source, code) ?: if (code == "ru") source else englishUi[source] ?: source
 }
