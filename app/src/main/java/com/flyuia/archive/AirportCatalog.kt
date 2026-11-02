@@ -7,7 +7,7 @@ import java.util.Locale
  * Source snapshot: tine-current/airport-codes (AirportMiles), CC0.
  * Includes every IATA-coded airport in the source with scheduled passenger service.
  */
-internal data class Airport(val city: String, val country: String, val code: String, val name: String) {
+internal data class Airport(val city: String, val country: String, val code: String, val name: String, val latitude: Double? = null, val longitude: Double? = null) {
     val countryName: String get() = Locale("", country).displayCountry.ifBlank { country }
     val label: String get() = "$city, $countryName ($code)"
 }
