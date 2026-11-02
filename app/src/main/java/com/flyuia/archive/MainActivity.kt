@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -27,10 +28,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.produceState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
@@ -100,8 +99,11 @@ private fun nextTier(points: Int) = when {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Warm the full airport index while the home screen is starting, not on first tap.
-        lifecycleScope.launch(Dispatchers.Default) { warmAirportCatalog() }
+        // Load and sort the complete worldwide airport index off the UI thread.
+        lifecycleScope.launch {
+            loadGlobalAirportCatalog(applicationContext)
+            warmAirportCatalog()
+        }
         setContent { FlyUIAApp() }
     }
 }
