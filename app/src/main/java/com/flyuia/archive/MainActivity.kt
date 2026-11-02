@@ -16,6 +16,12 @@ import kotlinx.coroutines.withContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.Brush
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -110,6 +116,40 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FlyUIAApp() {
+    var splashVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) { delay(1900); splashVisible = false }
+    Box(Modifier.fillMaxSize()) {
+        FlyUIAContent()
+        AnimatedVisibility(visible = splashVisible, enter = fadeIn(tween(250)), exit = fadeOut(tween(450))) { FlyUIASplash() }
+    }
+}
+
+@Composable
+private fun FlyUIASplash() {
+    Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF061D43), Color(0xFF075A9C), Color(0xFF16A4D5))))) {
+        Column(Modifier.fillMaxSize().padding(horizontal = 30.dp, vertical = 54.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceBetween) {
+            Text("A WORLD OF POSSIBILITIES", Modifier.align(Alignment.End), color = Color.White.copy(alpha = 0.72f), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                Box(Modifier.size(96.dp).background(Color.White.copy(alpha = 0.13f), RoundedCornerShape(28.dp)), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.FlightTakeoff, contentDescription = null, tint = Color.White, modifier = Modifier.size(54.dp))
+                }
+                Text("flyUIA", color = Color.White, fontSize = 48.sp, fontWeight = FontWeight.Black, letterSpacing = (-2).sp)
+                Text("YOUR WORLD. YOUR ROUTE.", color = Color.White.copy(alpha = 0.84f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 2.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(7.dp).background(Color(0xFFFFD329), RoundedCornerShape(50)))
+                    Text("READY FOR TAKE-OFF?", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.8.sp)
+                }
+            }
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                LinearProgressIndicator(Modifier.fillMaxWidth(0.48f).height(3.dp), color = Color(0xFFFFD329), trackColor = Color.White.copy(alpha = 0.22f))
+                Text("DISCOVER MORE. GO FURTHER.", color = Color.White.copy(alpha = 0.62f), fontSize = 9.sp, letterSpacing = 1.6.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun FlyUIAContent() {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("flyuia", 0) }
     val coroutineScope = rememberCoroutineScope()
